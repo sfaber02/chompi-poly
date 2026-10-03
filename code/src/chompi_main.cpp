@@ -17,6 +17,7 @@
 #include "presets.h"
 #include "synth/engine.h"
 #include "ui.h"
+#include "diag.h"
 
 using namespace daisy;
 using namespace chompi;
@@ -49,6 +50,55 @@ synth::Delay::Frame DSY_SDRAM_BSS delay_mem[kDelayFrames];
 
 bool          sd_ok   = false;
 volatile bool running = false; // audio outputs silence until startup is done
+
+DiagLog chompi::diag;
+
+#if DIAG
+// Same cache-line rules as presets.h.
+struct alignas(32) DiagFile
+{
+    char buf[4096];
+    FIL  fil;
+};
+DiagFile diag_file;
+
+static void DiagMainAdd(uint8_t code, uint8_t a, uint8_t b)
+{
+    __disable_irq();
+    diag.Add(System::GetNow(), code, a, b);
+    __enable_irq();
+}
+
+/** Appends whatever the ring holds to diag.txt. */
+static void DiagFlush()
+{
+    static const char* kNames[] = {"BOOT", "SHIFT", "KEYDOWN", "KEYUP", "PAGE", "TOGGLE",
+                                   "KNOB", "CLICK", "LOAD", "SAVE", "STALL", "EARLY"};
+    size_t len = 0;
+    while(diag.tail != diag.head && len < sizeof(diag_file.buf) - 48)
+    {
+        const DiagEvent& e = diag.ev[diag.tail % DiagLog::kSize];
+        len += snprintf(diag_file.buf + len, sizeof(diag_file.buf) - len, "%lu %s %u %u\n",
+                        static_cast<unsigned long>(e.ms), e.code < 12 ? kNames[e.code] : "?",
+                        e.a, e.b);
+        diag.tail++;
+    }
+    if(diag.dropped)
+    {
+        len += snprintf(diag_file.buf + len, sizeof(diag_file.buf) - len, "DROPPED %lu\n",
+                        static_cast<unsigned long>(diag.dropped));
+        diag.dropped = 0;
+    }
+    if(len == 0)
+        return;
+    if(f_open(&diag_file.fil, "diag.txt", FA_OPEN_APPEND | FA_WRITE) == FR_OK)
+    {
+        UINT bw;
+        f_write(&diag_file.fil, diag_file.buf, len, &bw);
+        f_close(&diag_file.fil);
+    }
+}
+#endif
 uint8_t midi_ch_in = 0;
 
 static void HandleMidi(const MidiEvent& ev)
@@ -170,6 +220,10 @@ int main(void)
         }
         options.Init();
         midi_ch_in = options.midi_ch_in;
+#if DIAG
+        f_unlink("diag_prev.txt");
+        f_rename("diag.txt", "diag_prev.txt");
+#endif
     }
 
     if(sd_ok)
@@ -213,10 +267,25 @@ int main(void)
 
     uint32_t last_draw = 0, last_batt = 0;
     char     fname[16];
+#if DIAG
+    DiagMainAdd(D_BOOT, 0, 0);
+    uint32_t last_flush = System::GetNow(), last_iter = System::GetNow();
+#endif
 
     while(1)
     {
         const uint32_t now = System::GetNow();
+#if DIAG
+        // A main loop that stops for long freezes the LEDs and the SD work.
+        if(now - last_iter > 20)
+            DiagMainAdd(D_STALL, now - last_iter > 255 ? 255 : now - last_iter, 0);
+        if(sd_ok && now - last_flush > 2000)
+        {
+            DiagFlush();
+            last_flush = System::GetNow();
+        }
+        last_iter = System::GetNow();
+#endif
 
         if(now - last_draw >= 16)
         {
@@ -231,8 +300,12 @@ int main(void)
             {
                 ui.load_slot = -1;
                 PresetStore::SlotName(load, fname);
-                if(presets.Load(fname, engine.params))
+                const bool ok = presets.Load(fname, engine.params);
+                if(ok)
                     ui.dirty = true; // new sound becomes current.txt too
+#if DIAG
+                DiagMainAdd(D_LOAD, load, ok);
+#endif
             }
 
             const int save = ui.save_slot;
@@ -240,14 +313,24 @@ int main(void)
             {
                 ui.save_slot = -1;
                 PresetStore::SlotName(save, fname);
-                presets.Save(fname, engine.params);
+                const bool ok = presets.Save(fname, engine.params);
+#if DIAG
+                DiagMainAdd(D_SAVE, save, ok);
+#else
+                (void)ok;
+#endif
             }
 
             // Remember the sound a few seconds after the last change.
             if(ui.dirty && now - ui.last_change > 3000)
             {
                 ui.dirty = false;
-                presets.Save("current.txt", engine.params, &engine.volume);
+                const bool ok = presets.Save("current.txt", engine.params, &engine.volume);
+#if DIAG
+                DiagMainAdd(D_SAVE, 99, ok);
+#else
+                (void)ok;
+#endif
             }
         }
 

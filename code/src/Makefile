@@ -23,6 +23,10 @@ CPP_SOURCES = chompi_main.cpp \
 
 USE_FATFS = 1
 
+# DIAG=1 logs UI events to /SYNTH/diag.txt (debug builds only)
+DIAG ?= 0
+C_DEFS += -DDIAG=$(DIAG)
+
 LIBDAISY_DIR = ../libs/libDaisy
 DAISYSP_DIR = ../libs/DaisySP
 

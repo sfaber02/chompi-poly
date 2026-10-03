@@ -27,6 +27,7 @@
 #include "hardware.h"
 #include "temp_led_stuff.h"
 #include "synth/engine.h"
+#include "diag.h"
 
 namespace chompi
 {
@@ -99,12 +100,30 @@ class Ui
         const uint32_t now = System::GetNow();
         auto&          sr  = hw_->button_sr;
 
-        engine_->SetMono(!hw_->GetToggleState());
+        const bool tog = hw_->GetToggleState();
+        if(tog != last_tog_)
+        {
+            diag.Add(now, D_TOGGLE, tog);
+            last_tog_ = tog;
+        }
+        engine_->SetMono(!tog);
 
         if(now - start_ < kIgnoreBootMs)
+        {
+            if(!early_logged_)
+            {
+                diag.Add(now, D_EARLY);
+                early_logged_ = true;
+            }
             return;
+        }
 
         shift_ = sr.State(static_cast<int>(Sw::KEY_26));
+        if(shift_ != last_shift_)
+        {
+            diag.Add(now, D_SHIFT, shift_);
+            last_shift_ = shift_;
+        }
 
         // Keys
         for(int i = 0; i < 40; i++)
@@ -112,9 +131,15 @@ class Ui
             if(kKeyNote[i] == 0)
                 continue;
             if(sr.RisingEdge(i))
+            {
+                diag.Add(now, D_KEYDOWN, i, shift_);
                 KeyDown(i, now);
+            }
             else if(sr.FallingEdge(i))
+            {
+                diag.Add(now, D_KEYUP, i);
                 KeyUp(i, now);
+            }
         }
 
         // A preset key held long enough saves, while you're still holding it.
@@ -160,7 +185,10 @@ class Ui
             else
                 clicked = sr.RisingEdge(static_cast<int>(kKnobClick[k]));
             if(clicked)
+            {
+                diag.Add(now, D_CLICK, k, shift_);
                 KnobClick(k, now);
+            }
         }
 
         // Knob turns
@@ -334,6 +362,7 @@ class Ui
                     page_          = static_cast<Page>(p);
                     shown_at_      = 0;
                     page_flash_at_ = now;
+                    diag.Add(now, D_PAGE, p);
                     return;
                 }
             }
@@ -437,6 +466,7 @@ class Ui
             id = shift_ ? RESONANCE : CUTOFF;
         else
             id = ParamAt(knob, shift_);
+        diag.Add(now, D_KNOB, knob, id < 0 ? 255 : id);
         if(id < 0)
             return;
 
@@ -533,6 +563,9 @@ class Ui
     bool  shift_ = false;
     bool  hold_  = false;
     bool  last_hold_    = false;
+    bool  last_shift_   = false;
+    bool  last_tog_     = false;
+    bool  early_logged_ = false;
     bool  last_sustain_ = false;
     int   octave_ = 0;
     int   current_slot_ = -1;
