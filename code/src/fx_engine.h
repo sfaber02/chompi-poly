@@ -177,6 +177,7 @@ class FxEngine
 
         lfo_freq_[0] = 0.f;
         lfo_freq_[1] = 0.f;
+        write_ptr_ = 0;
     }
 
     void Clear()

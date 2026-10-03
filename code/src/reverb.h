@@ -45,6 +45,14 @@ class Reverb {
     engine_.SetLFOFrequency(LFO_2, 0.3f / sample_rate);
     lp_ = 0.7f;
     diffusion_ = 0.625f;
+    // This object sits in DTCM, which startup never zeroes, so nothing here
+    // can be assumed 0. The two loop low-pass states especially: left as
+    // junk they fire a full-scale burst into the reverb at power-on.
+    amount_ = 0.f;
+    input_gain_ = 0.2f;
+    reverb_time_ = 0.5f;
+    lp_decay_1_ = 0.f;
+    lp_decay_2_ = 0.f;
   }
   
   void Process(float* left, float* right) {
