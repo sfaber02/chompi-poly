@@ -5,8 +5,6 @@ An analog-style synth for the CHOMPI, after the Korg Mono/Poly. Each voice has f
 It runs on its own like any stock CHOMPI firmware, or as one firmware on the [multi-firmware launcher](https://github.com/sfaber02/CHOMPI) card alongside TAPE, TEMPO and WAVE.
 
 > Status: beta. Download the latest from [Releases](https://github.com/sfaber02/chompi-poly/releases).
->
-> Formerly "CHOMPI SYNTH". On first boot POLY renames an existing `/SYNTH` folder to `/POLY`, so saved patches carry over.
 
 ## Install
 
@@ -14,17 +12,17 @@ Download the latest from [Releases](https://github.com/sfaber02/chompi-poly/rele
 
 ### On its own (like a stock firmware)
 
-1. Copy `04_POLY.bin` to the **root** of the card and rename it `CHOMPI.bin`. It must be the only `.bin` in the root.
+1. Copy `POLY.bin` to the **root** of the card. It must be the only `.bin` there, so remove any other (a stock firmware's is usually `CHOMPI.bin`).
 2. Power on. The rainbow shows while the bootloader installs it, and from then on the CHOMPI boots straight into the synth.
 
-To go back to another firmware, use a card with that firmware's `CHOMPI.bin`, the same as switching any stock firmware.
+To switch back to TAPE or anything else, use a card with that firmware's `.bin` in the root, as usual.
 
 ### On the multi-firmware launcher
 
-1. Copy `04_POLY.bin` into `/FIRMWARE`. It goes on key 4; rename the number to use another key.
+1. Copy `POLY.bin` into `/FIRMWARE`. It goes on the first free key: key 4 on a stock launcher card. To put it on a particular key, put that number in front, e.g. `09_POLY.bin` for key 9.
 2. Power on and press the key.
 
-Or send `04_POLY.bin` over USB MIDI from the launcher ([web uploader](https://ugrossek.github.io/CHOMPI/)).
+Or send `POLY.bin` over USB MIDI from the launcher ([web uploader](https://ugrossek.github.io/CHOMPI/)).
 
 POLY creates a `/POLY` folder on the card for your saved patches, the sound you left it on, and `options.json`. A patch you save to a factory slot replaces that slot's built-in patch. A brand-new card starts on patch 2 (brass).
 

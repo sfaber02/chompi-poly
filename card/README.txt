@@ -8,8 +8,6 @@ chorus, delay, reverb and an arpeggiator. The toggle switch picks mono (up)
 or 6-voice poly (down).
 
 BETA: tested on one CHOMPI so far. Back up your card first.
-(Had the earlier "CHOMPI SYNTH" test build? POLY renames your /SYNTH
-folder to /POLY on first boot, so your patches carry over.)
 
 
 QUICK START (2 minutes)
@@ -66,20 +64,21 @@ INSTALL
 
 ON ITS OWN, like any stock CHOMPI firmware:
 
-1. Copy FIRMWARE/04_POLY.bin to the ROOT of the card and rename it
-   CHOMPI.bin. It must be the only .bin in the root.
+1. Copy POLY.bin to the ROOT of the card. It must be the only .bin there,
+   so remove any other (a stock firmware's is usually CHOMPI.bin).
 2. Power on. The rainbow shows while it installs, then it boots straight
    into the synth every time. To switch back to TAPE or anything else, use
-   a card with that firmware's CHOMPI.bin, as usual.
+   a card with that firmware's .bin in the root, as usual.
 
 ON THE MULTI-FIRMWARE LAUNCHER (v1.1,
 https://github.com/sfaber02/CHOMPI/releases):
 
-1. Copy FIRMWARE/04_POLY.bin into /FIRMWARE on the card. It goes on key 4;
-   rename 04 to any free number 1-15 to put it on another key.
+1. Copy POLY.bin into /FIRMWARE on the card. It goes on the first free
+   key: key 4 on a stock launcher card. To pick a key, put its number in
+   front, e.g. 09_POLY.bin for key 9.
 2. Power on, press the key.
 
-Or send 04_POLY.bin over USB MIDI from the launcher
+Or send POLY.bin over USB MIDI from the launcher
 (https://ugrossek.github.io/CHOMPI/).
 
 That's all: the factory patches are built into the firmware. POLY makes a

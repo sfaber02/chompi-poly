@@ -2,8 +2,9 @@
 #
 # Build with ARM GCC 10.3-2021.10 (the same toolchain as TAPE and WAVE):
 #   PATH=/path/to/gcc-arm-none-eabi-10.3-2021.10/bin:$PATH make
-# Output: build/CHOMPI.bin. Install it as /FIRMWARE/04_POLY.bin on a
-# multi-firmware launcher card (or send it over USB MIDI from the launcher).
+# Output: build/CHOMPI.bin, shipped as POLY.bin: in the card root to run on
+# its own, or in /FIRMWARE on a multi-firmware launcher card (or sent over
+# USB MIDI from the launcher).
 
 TARGET = CHOMPI
 
