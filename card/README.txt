@@ -54,8 +54,17 @@ Lost? Hold CHOMPI and click a knob to reset it. Click the volume knob
 INSTALL
 -------
 
-You need a card set up with the multi-firmware launcher (v1.1):
-https://github.com/sfaber02/CHOMPI/releases
+ON ITS OWN, like any stock CHOMPI firmware:
+
+1. Copy FIRMWARE/04_SYNTH.bin to the ROOT of the card and rename it
+   CHOMPI.bin. It must be the only .bin in the root.
+2. Copy the SYNTH folder to the root of the card (the factory patches).
+3. Power on. The rainbow shows while it installs, then it boots straight
+   into the synth every time. To switch back to TAPE or anything else, use
+   a card with that firmware's CHOMPI.bin, as usual.
+
+ON THE MULTI-FIRMWARE LAUNCHER (v1.1,
+https://github.com/sfaber02/CHOMPI/releases):
 
 1. Copy FIRMWARE/04_SYNTH.bin into /FIRMWARE on the card. It goes on key 4;
    rename 04 to any free number 1-15 to put it on another key.

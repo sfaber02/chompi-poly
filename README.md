@@ -2,13 +2,23 @@
 
 An analog-style synth for the CHOMPI, after the Korg Mono/Poly. Each voice has four oscillators (saw, pulse with PWM, triangle) with hard sync and cross-mod. They feed a resonant 24 dB ladder filter, a filter envelope, an amp envelope and an LFO. After the voices come chorus, a ping-pong delay, reverb and saturation. There's also an arpeggiator. The toggle switch picks mono (with unison and glide) or 6-voice poly.
 
-It runs as one firmware on the [multi-firmware launcher](https://github.com/sfaber02/CHOMPI) card, alongside TAPE, TEMPO and WAVE.
+It runs on its own like any stock CHOMPI firmware, or as one firmware on the [multi-firmware launcher](https://github.com/sfaber02/CHOMPI) card alongside TAPE, TEMPO and WAVE.
 
 > Status: beta. Download the latest from [Releases](https://github.com/sfaber02/chompi-synth/releases).
 
 ## Install
 
-Using a launcher card, either:
+### On its own (like a stock firmware)
+
+1. Copy the firmware to the **root** of the card as `CHOMPI.bin`. It must be the only `.bin` in the root.
+2. Copy the `SYNTH` folder to the root.
+3. Power on. The rainbow shows while the bootloader installs it, and from then on the CHOMPI boots straight into the synth.
+
+Or run `./install.sh --standalone /Volumes/YOUR_CARD`. To go back to another firmware, use a card with that firmware's `CHOMPI.bin`, the same as switching any stock firmware.
+
+### On the multi-firmware launcher
+
+Either:
 
 - copy it on with the card in your computer:
 
