@@ -332,7 +332,7 @@ class Ui
     {
         const float* p = engine_->params;
         return StepIndex(p[OCTAVE], 5) != 2 || StepIndex(p[TRANSPOSE], 25) != 12
-               || fabsf(p[FINE_TUNE] - 0.5f) > 0.004f;
+               || StepIndex(p[FINE_TUNE], 101) != 50;
     }
 
     void StepParam(int id, int dir, uint32_t now)
@@ -489,6 +489,16 @@ class Ui
             osc_          = knob;
             shown_at_     = 0;
             osc_shown_at_ = now;
+        }
+        else if(page_ == PAGE_TUNE)
+        {
+            // On TUNE a plain click puts that setting back to zero.
+            const int id = ParamAt(knob, false);
+            if(id >= 0)
+            {
+                engine_->params[id] = kParams[id].def;
+                Changed(id, now);
+            }
         }
     }
 

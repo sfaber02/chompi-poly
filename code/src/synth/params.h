@@ -179,7 +179,7 @@ constexpr ParamInfo kParams[NUM_PARAMS] = {
 
     {"octave",      .5f,   5, true,  0, true},     // -2..+2
     {"transpose",   .5f,  25, true,  0, true},     // -12..+12 semitones
-    {"fine_tune",   .5f,   0, true,  117, true},   // +/-50 cents
+    {"fine_tune",   .5f, 101, true,  117, true},   // +/-50 cents in exact 1-cent steps
     {"bend_range",  1/11.f, 12, false, 0, true},   // 1..12 semitones, default 2
 };
 // clang-format on
