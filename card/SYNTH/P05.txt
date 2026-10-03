@@ -46,10 +46,10 @@ lfo_cutoff 0.0000
 chorus 0.0000
 dly_time 0.4500
 dly_fdbk 0.3500
-dly_mix 0.2000
+dly_mix 0.0800
 spread 0.5000
 rev_size 0.5000
-rev_mix 0.4000
+rev_mix 0.1940
 rev_tone 0.6000
 saturate 0.2000
 noise 0.0000

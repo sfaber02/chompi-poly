@@ -31,8 +31,14 @@ class Delay
     }
 
     void SetTime(float seconds) { time_target_ = Clamp(seconds * sr_, 16.f, size_ - 2.f); }
-    void SetFeedback(float fb) { feedback_ = Clamp(fb, 0.f, 0.95f); }
-    void SetMix(float mix) { mix_ = Clamp(mix, 0.f, 1.f); }
+    /** 0..1. The last couple of percent is infinite: repeats stop fading and
+     *  stop darkening, and hold until you turn it back down. */
+    void SetFeedback(float fb)
+    {
+        infinite_ = fb >= 0.98f;
+        feedback_ = infinite_ ? 1.f : Clamp(fb, 0.f, 0.98f) * (0.95f / 0.98f);
+    }
+    void SetMix(float mix) { MixGains(mix, &dry_, &wet_); }
 
     /** Loudest signal written since the last call (1.0 = full scale at the
      *  delay's input; it bends from 1.5 up). For the DIAG clip log. */
@@ -48,15 +54,23 @@ class Delay
         // Slew the read head: ~80 ms to settle, like a tape machine's motor.
         time_ += (time_target_ - time_) * 0.0003f;
 
+        // At infinite, read whole samples: interpolating between them is a
+        // gentle low-pass, and a few hundred repeats of it is a fade.
         float dl, dr;
-        Read(time_, &dl, &dr);
+        Read(infinite_ ? floorf(time_ + 0.5f) : time_, &dl, &dr);
 
         // Ping-pong: the mono input enters on the left, each repeat crosses over.
         const float in = 0.5f * (*l + *r);
-        lp_l_ += (dr - lp_l_) * 0.35f;
-        lp_r_ += (dl - lp_r_) * 0.35f;
-        const float wl = in + FastTanh(lp_l_ * feedback_);
-        const float wr = FastTanh(lp_r_ * feedback_);
+        // Each repeat is a little darker, except at infinite, where the
+        // filter steps aside so the loop doesn't fade to a muffled hum.
+        const float tone = infinite_ ? 1.f : 0.35f;
+        lp_l_ += (dr - lp_l_) * tone;
+        lp_r_ += (dl - lp_r_) * tone;
+        // Normally the loop saturates gently (tanh), which also bleeds a
+        // little level each pass. At infinite the loop is exactly unity and
+        // only loud peaks get limited, so repeats hold for as long as you like.
+        const float wl = in + (infinite_ ? SoftLimit(lp_l_) : FastTanh(lp_l_ * feedback_));
+        const float wr = infinite_ ? SoftLimit(lp_r_) : FastTanh(lp_r_ * feedback_);
 
         // Stored at half scale with a soft knee: 6 dB of headroom before
         // anything bends, and it bends instead of chopping (16-bit memory
@@ -65,8 +79,8 @@ class Delay
         peak_in_      = fmaxf(peak_in_, fmaxf(fabsf(wl), fabsf(wr)));
         write_        = write_ + 1 < size_ ? write_ + 1 : 0;
 
-        *l = *l + dl * mix_;
-        *r = *r + dr * mix_;
+        *l = *l * dry_ + dl * wet_;
+        *r = *r * dry_ + dr * wet_;
     }
 
   private:
@@ -98,7 +112,9 @@ class Delay
     float  time_       = 0.f;
     float  time_target_ = 0.f;
     float  feedback_   = 0.f;
-    float  mix_        = 0.f;
+    float  dry_        = 1.f;
+    float  wet_        = 0.f;
+    bool   infinite_   = false;
     float  lp_l_       = 0.f;
     float  lp_r_       = 0.f;
     float  peak_in_    = 0.f;

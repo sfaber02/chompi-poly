@@ -42,6 +42,16 @@ inline float SoftLimit(float x)
     return x < 0.f ? -y : y;
 }
 
+/** Dry/wet law shared by the delay and reverb mix knobs: the bottom half
+ *  brings the effect up to full under a full dry signal (the middle is a
+ *  true 50/50), the top half fades the dry out to 100 % wet. */
+inline void MixGains(float m, float* dry, float* wet)
+{
+    m    = m < 0.f ? 0.f : (m > 1.f ? 1.f : m);
+    *wet = m < 0.5f ? 2.f * m : 1.f;
+    *dry = m > 0.5f ? 2.f * (1.f - m) : 1.f;
+}
+
 /** Pade tanh, clamped where it would turn back. */
 inline float FastTanh(float x)
 {

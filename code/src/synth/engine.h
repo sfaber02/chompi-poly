@@ -238,10 +238,12 @@ class Engine
             // The reverb also keeps its tank in 16 bits and clips hard. Run it
             // at half level and bring it back up: 6 dB of headroom, same mix.
             lv_reverb_in_ = fmaxf(lv_reverb_in_, fmaxf(fabsf(l), fabsf(r)));
+            // Amount is pinned at 1 so the reverb returns only its wet
+            // signal; the mix knob's dry/wet law is applied here.
             float rl = l * 0.5f, rr = r * 0.5f;
             reverb_->Process(&rl, &rr);
-            l = rl * 2.f;
-            r = rr * 2.f;
+            l = l * rev_dry_ + rl * 2.f * rev_wet_;
+            r = r * rev_dry_ + rr * 2.f * rev_wet_;
 
             // DC blocker
             dc_l_ += (l - dc_l_) * 0.0005f;
@@ -496,10 +498,11 @@ class Engine
 
         chorus_.SetAmount(p[CHORUS]);
         delay_.SetTime(KnobToTime(p[DLY_TIME], 0.02f, 1.9f));
-        delay_.SetFeedback(p[DLY_FDBK] * 0.95f);
-        delay_.SetMix(p[DLY_MIX] * 0.8f);
+        delay_.SetFeedback(p[DLY_FDBK]);
+        delay_.SetMix(p[DLY_MIX]);
         reverb_->SetTime(0.35f + 0.63f * p[REV_SIZE]);
-        reverb_->SetAmount(p[REV_MIX] * 0.7f);
+        reverb_->SetAmount(1.f);
+        MixGains(p[REV_MIX], &rev_dry_, &rev_wet_);
         reverb_->SetLowpass(0.3f + 0.65f * p[REV_TONE]);
         reverb_->SetDiffusion(0.7f);
 
@@ -543,6 +546,7 @@ class Engine
     float spread_     = 0.5f;
     float env_cache_[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
 
+    float rev_dry_ = 1.f, rev_wet_ = 0.f;
     float dc_l_ = 0.f, dc_r_ = 0.f;
     float sat_gain_ = 1.f, sat_makeup_ = 1.f;
     float vol_      = 0.f;

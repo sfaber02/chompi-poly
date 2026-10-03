@@ -106,8 +106,11 @@ PAGES (black keys, left to right; CHOMPI + turn in brackets)
   3  FILTER   cutoff | resonance (drive) | env amount | key tracking
   4  F-ENV    attack (velocity) | decay | sustain | release
   5  A-ENV    attack (velocity) | decay | sustain | release
-  6  FX       chorus (stereo spread) | delay time | feedback | delay mix
-  7  REVERB   size | mix | tone | saturation
+  6  FX       delay mix | delay time | feedback | chorus (stereo spread)
+              mix: middle = 50/50, top = only echoes
+              feedback: top = infinite (repeats hold until you turn it down)
+  7  REVERB   mix | size | tone | saturation
+              mix: middle = 50/50, top = only reverb
   8  LFO      rate | shape | to pitch (to pulse width) | to cutoff
   9  ARP      mode | octave range | tempo | gate
   10 PERFORM  glide (noise) | unison (saturation) | spread (drive) | tune

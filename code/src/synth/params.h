@@ -160,7 +160,7 @@ constexpr ParamInfo kParams[NUM_PARAMS] = {
     {"spread",      .5f,   0, false, 10},
 
     {"rev_size",    .5f,   0, false, 85},
-    {"rev_mix",     .15f,  0, false, 91},
+    {"rev_mix",     .06f,  0, false, 91},
     {"rev_tone",    .6f,   0, false, 86},
     {"saturate",    .2f,   0, false, 87},
     {"noise",       0.f,   0, false, 88},
@@ -216,8 +216,9 @@ constexpr uint8_t kPageParams[NUM_PAGES][2 * kPageKnobs] = {
     {CUTOFF, RESONANCE, FENV_AMT, KEYTRACK, kNone, DRIVE, kNone, kNone},
     {FENV_A, FENV_D, FENV_S, FENV_R, VEL_FILTER, kNone, kNone, kNone},
     {AENV_A, AENV_D, AENV_S, AENV_R, VEL_AMP, kNone, kNone, kNone},
-    {CHORUS, DLY_TIME, DLY_FDBK, DLY_MIX, SPREAD, kNone, kNone, kNone},
-    {REV_SIZE, REV_MIX, REV_TONE, SATURATE, kNone, kNone, kNone, kNone},
+    // Mix is knob 1 on both effect pages.
+    {DLY_MIX, DLY_TIME, DLY_FDBK, CHORUS, kNone, kNone, kNone, SPREAD},
+    {REV_MIX, REV_SIZE, REV_TONE, SATURATE, kNone, kNone, kNone, kNone},
     {LFO_RATE, LFO_SHAPE, LFO_PITCH, LFO_CUTOFF, kNone, kNone, LFO_PWM, kNone},
     {ARP_MODE, ARP_RANGE, ARP_TEMPO, ARP_GATE, kNone, kNone, kNone, kNone},
     {GLIDE, UNISON, SPREAD, TUNE, NOISE, SATURATE, DRIVE, kNone},
