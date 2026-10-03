@@ -10,28 +10,23 @@ It runs on its own like any stock CHOMPI firmware, or as one firmware on the [mu
 
 ## Install
 
+Download the latest from [Releases](https://github.com/sfaber02/chompi-poly/releases). Install is one file: the factory patches are built in.
+
 ### On its own (like a stock firmware)
 
-1. Copy the firmware to the **root** of the card as `CHOMPI.bin`. It must be the only `.bin` in the root.
+1. Copy `04_POLY.bin` to the **root** of the card and rename it `CHOMPI.bin`. It must be the only `.bin` in the root.
 2. Power on. The rainbow shows while the bootloader installs it, and from then on the CHOMPI boots straight into the synth.
 
-Or run `./install.sh --standalone /Volumes/YOUR_CARD`. To go back to another firmware, use a card with that firmware's `CHOMPI.bin`, the same as switching any stock firmware.
+To go back to another firmware, use a card with that firmware's `CHOMPI.bin`, the same as switching any stock firmware.
 
 ### On the multi-firmware launcher
 
-Either:
+1. Copy `04_POLY.bin` into `/FIRMWARE`. It goes on key 4; rename the number to use another key.
+2. Power on and press the key.
 
-- copy it on with the card in your computer:
+Or send `04_POLY.bin` over USB MIDI from the launcher ([web uploader](https://ugrossek.github.io/CHOMPI/)).
 
-  ```
-  ./install.sh /Volumes/YOUR_CARD        # key 4
-  ./install.sh /Volumes/YOUR_CARD 5      # or pick the key
-  ```
-
-  This copies `/FIRMWARE/04_POLY.bin`.
-- or, with the launcher showing, send `code/src/build/CHOMPI.bin` to a free slot over USB MIDI.
-
-The factory patches are built into the firmware (`code/src/synth/factory.h`), so there's nothing else to copy. POLY creates `/POLY` on the card for your saved patches, the sound you left it on, and `options.json`. A patch you save to a factory slot replaces that slot's built-in patch. A brand-new card starts on patch 2 (brass).
+POLY creates a `/POLY` folder on the card for your saved patches, the sound you left it on, and `options.json`. A patch you save to a factory slot replaces that slot's built-in patch. A brand-new card starts on patch 2 (brass).
 
 ## Playing it
 
