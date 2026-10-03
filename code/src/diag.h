@@ -29,6 +29,7 @@ enum DiagCode : uint8_t
     D_EARLY,     // Poll returned early (boot ignore window)
     D_LEVEL,     // a=voices peak %, b=delay input peak % (bends from 150)
     D_LEVEL2,    // a=reverb input peak %, b=limiter gain % (100 = untouched)
+    D_CPU,       // a=average audio CPU %, b=worst single block %
 };
 
 struct DiagEvent

@@ -52,9 +52,9 @@ When you turn a knob, the white keys briefly show its value as a bar. A centred 
 | 3 | **FILTER** (blue) | cutoff | resonance<br>*CHOMPI: drive* | env amount ± | key track |
 | 4 | **F-ENV** (indigo) | attack<br>*CHOMPI: velocity → filter* | decay | sustain | release |
 | 5 | **A-ENV** (green) | attack<br>*CHOMPI: velocity → amp* | decay | sustain | release |
-| 6 | **LFO** (purple) | rate | shape: tri/sine/saw/square/S&H | → pitch<br>*CHOMPI: → PWM* | → cutoff |
-| 7 | **FX** (teal) | chorus<br>*CHOMPI: stereo spread* | delay time | feedback | delay mix |
-| 8 | **REVERB** (warm) | size | mix | tone | saturation |
+| 6 | **FX** (teal) | chorus<br>*CHOMPI: stereo spread* | delay time | feedback | delay mix |
+| 7 | **REVERB** (warm) | size | mix | tone | saturation |
+| 8 | **LFO** (purple) | rate | shape: tri/sine/saw/square/S&H | → pitch<br>*CHOMPI: → PWM* | → cutoff |
 | 9 | **ARP** (yellow) | mode: off/up/down/up-down/random/as played | range 1–3 oct | tempo (also CHOMPI + volume while the arp runs) | gate (full = legato) |
 | 10 | **PERFORM** (white) | glide<br>*CHOMPI: noise* | unison<br>*CHOMPI: saturation* | spread<br>*CHOMPI: drive* | fine tune |
 

@@ -74,13 +74,13 @@ static void DiagFlush()
 {
     static const char* kNames[] = {"BOOT", "SHIFT", "KEYDOWN", "KEYUP", "PAGE", "TOGGLE",
                                    "KNOB", "CLICK", "LOAD", "SAVE", "STALL", "EARLY",
-                                   "LEVEL", "LEVEL2"};
+                                   "LEVEL", "LEVEL2", "CPU"};
     size_t len = 0;
     while(diag.tail != diag.head && len < sizeof(diag_file.buf) - 48)
     {
         const DiagEvent& e = diag.ev[diag.tail % DiagLog::kSize];
         len += snprintf(diag_file.buf + len, sizeof(diag_file.buf) - len, "%lu %s %u %u\n",
-                        static_cast<unsigned long>(e.ms), e.code < 14 ? kNames[e.code] : "?",
+                        static_cast<unsigned long>(e.ms), e.code < 15 ? kNames[e.code] : "?",
                         e.a, e.b);
         diag.tail++;
     }
@@ -314,6 +314,9 @@ int main(void)
                 DiagMainAdd(D_LEVEL, pct(lv.voices), pct(lv.delay_in));
                 DiagMainAdd(D_LEVEL2, pct(lv.reverb_in), pct(lv.limit_gain));
             }
+            // The LED shows the average; dropouts come from the worst block.
+            DiagMainAdd(D_CPU, pct(cpu.GetAvgCpuLoad()), pct(cpu.GetMaxCpuLoad()));
+            cpu.Reset();
         }
         last_iter = System::GetNow();
 #endif

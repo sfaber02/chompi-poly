@@ -197,9 +197,9 @@ enum Page : uint8_t
     PAGE_FILTER,
     PAGE_FENV,
     PAGE_AENV,
-    PAGE_LFO,
     PAGE_FX,
     PAGE_REVERB,
+    PAGE_LFO,
     PAGE_ARP,
     PAGE_PERFORM,
     NUM_PAGES
@@ -216,9 +216,9 @@ constexpr uint8_t kPageParams[NUM_PAGES][2 * kPageKnobs] = {
     {CUTOFF, RESONANCE, FENV_AMT, KEYTRACK, kNone, DRIVE, kNone, kNone},
     {FENV_A, FENV_D, FENV_S, FENV_R, VEL_FILTER, kNone, kNone, kNone},
     {AENV_A, AENV_D, AENV_S, AENV_R, VEL_AMP, kNone, kNone, kNone},
-    {LFO_RATE, LFO_SHAPE, LFO_PITCH, LFO_CUTOFF, kNone, kNone, LFO_PWM, kNone},
     {CHORUS, DLY_TIME, DLY_FDBK, DLY_MIX, SPREAD, kNone, kNone, kNone},
     {REV_SIZE, REV_MIX, REV_TONE, SATURATE, kNone, kNone, kNone, kNone},
+    {LFO_RATE, LFO_SHAPE, LFO_PITCH, LFO_CUTOFF, kNone, kNone, LFO_PWM, kNone},
     {ARP_MODE, ARP_RANGE, ARP_TEMPO, ARP_GATE, kNone, kNone, kNone, kNone},
     {GLIDE, UNISON, SPREAD, TUNE, NOISE, SATURATE, DRIVE, kNone},
 };
@@ -232,9 +232,9 @@ constexpr float kPageColour[NUM_PAGES][3] = {
     {0.f, .6f, 1.f},   // FILTER   blue
     {.2f, .3f, 1.f},   // F-ENV    indigo
     {0.f, 1.f, .3f},   // A-ENV    green
-    {.6f, 0.f, 1.f},   // LFO      purple
     {0.f, 1.f, .85f},  // FX       teal
     {1.f, .9f, .6f},   // REVERB   warm white
+    {.6f, 0.f, 1.f},   // LFO      purple
     {1.f, .85f, 0.f},  // ARP      yellow
     {1.f, 1.f, 1.f},   // PERFORM  white
 };

@@ -29,7 +29,7 @@ to everything else.
    knob LEDs take its colour, so you always know where you are.
 
       black keys, left to right:
-      OSC  MOD  |  FILTER  F-ENV  A-ENV  |  LFO  FX  |  REVERB  ARP  PERFORM
+      OSC  MOD  |  FILTER  F-ENV  A-ENV  |  FX  REVERB  |  LFO  ARP  PERFORM
 
 5. Turn knobs 1-4 on that page. The white keys light up to show the value.
    Hold CHOMPI while turning to reach each knob's second control.
@@ -105,9 +105,9 @@ PAGES (black keys, left to right; CHOMPI + turn in brackets)
   3  FILTER   cutoff | resonance (drive) | env amount | key tracking
   4  F-ENV    attack (velocity) | decay | sustain | release
   5  A-ENV    attack (velocity) | decay | sustain | release
-  6  LFO      rate | shape | to pitch (to pulse width) | to cutoff
-  7  FX       chorus (stereo spread) | delay time | feedback | delay mix
-  8  REVERB   size | mix | tone | saturation
+  6  FX       chorus (stereo spread) | delay time | feedback | delay mix
+  7  REVERB   size | mix | tone | saturation
+  8  LFO      rate | shape | to pitch (to pulse width) | to cutoff
   9  ARP      mode | octave range | tempo | gate
   10 PERFORM  glide (noise) | unison (saturation) | spread (drive) | tune
 
