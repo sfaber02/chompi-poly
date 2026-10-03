@@ -603,16 +603,30 @@ class Ui
 
     void DrawPlaying(const float* c)
     {
-        // OSC page: briefly mark which oscillator the knobs edit.
-        const uint32_t now = System::GetNow();
-        if(page_ == PAGE_OSC && now - osc_shown_at_ < kShowValueMs)
+        // OSC page: white keys 1-4 are the four oscillators, always shown.
+        // The one the knobs edit is bright; the others are dim, and dimmer
+        // still when their level is zero, so you can also see which are
+        // sounding. A fresh click flashes the new choice full white.
+        if(page_ == PAGE_OSC)
         {
+            const uint32_t now = System::GetNow();
             for(int o = 0; o < kNumOscs; o++)
             {
-                const float b = o == osc_ ? 1.f : 0.1f;
-                SetSmtLedFloat(kKeyLed[static_cast<int>(kWhiteKeys[o])], c[0] * b, c[1] * b, c[2] * b);
+                const int led = kKeyLed[static_cast<int>(kWhiteKeys[o])];
+                if(o == osc_)
+                {
+                    if(now - osc_shown_at_ < 150)
+                        SetSmtLedFloat(led, 1.f, 1.f, 1.f);
+                    else
+                        SetSmtLedFloat(led, c[0], c[1], c[2]);
+                }
+                else
+                {
+                    const bool  on = engine_->params[OSC1_LEVEL + o * kOscParams] > 0.f;
+                    const float b  = on ? 0.18f : 0.04f;
+                    SetSmtLedFloat(led, c[0] * b, c[1] * b, c[2] * b);
+                }
             }
-            return;
         }
 
         for(int i = 0; i < 40; i++)

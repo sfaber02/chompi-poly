@@ -36,7 +36,7 @@ It follows the stock CHOMPI idiom: **CHOMPI is shift.**
 | Knobs 1–4 | The current page's four main controls |
 | **CHOMPI + turn knob 1–4** | That knob's second control on this page (knobs without one go dark while CHOMPI is held) |
 | CHOMPI + click knob | Reset it to default |
-| Click knob 1–4 on the OSC page | Pick which oscillator the knobs edit |
+| Click knob 1–4 on the OSC page | Pick which oscillator the knobs edit. White keys 1–4 always show it: the selected one is bright, oscillators that are switched off are darkest |
 | Big purple knob | Filter cutoff, on every page. CHOMPI + turn: resonance |
 | Volume knob (right) | Master volume. CHOMPI + turn: arp tempo while the arp is on, saturation otherwise. Click: all notes off |
 | **CHOMPI + black key** | Choose a page (below). The keybed flashes the page colour |
