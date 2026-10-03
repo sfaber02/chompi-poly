@@ -13,8 +13,7 @@ It runs on its own like any stock CHOMPI firmware, or as one firmware on the [mu
 ### On its own (like a stock firmware)
 
 1. Copy the firmware to the **root** of the card as `CHOMPI.bin`. It must be the only `.bin` in the root.
-2. Copy the `POLY` folder to the root.
-3. Power on. The rainbow shows while the bootloader installs it, and from then on the CHOMPI boots straight into the synth.
+2. Power on. The rainbow shows while the bootloader installs it, and from then on the CHOMPI boots straight into the synth.
 
 Or run `./install.sh --standalone /Volumes/YOUR_CARD`. To go back to another firmware, use a card with that firmware's `CHOMPI.bin`, the same as switching any stock firmware.
 
@@ -29,8 +28,10 @@ Either:
   ./install.sh /Volumes/YOUR_CARD 5      # or pick the key
   ```
 
-  This copies `/FIRMWARE/04_POLY.bin` and the factory patches into `/POLY`. It never overwrites patches you've saved.
-- or, with the launcher showing, send `code/src/build/CHOMPI.bin` to a free slot over USB MIDI. Then copy `card/POLY/` to the card yourself to get the factory patches.
+  This copies `/FIRMWARE/04_POLY.bin`.
+- or, with the launcher showing, send `code/src/build/CHOMPI.bin` to a free slot over USB MIDI.
+
+The factory patches are built into the firmware (`code/src/synth/factory.h`), so there's nothing else to copy. POLY creates `/POLY` on the card for your saved patches, the sound you left it on, and `options.json`. A patch you save to a factory slot replaces that slot's built-in patch. A brand-new card starts on patch 2 (brass).
 
 ## Playing it
 
@@ -124,7 +125,7 @@ This produces `code/src/build/CHOMPI.bin`. The libraries in `code/libs` are CHOM
 ```
 make -C host
 host/render host/out                                   # test sounds
-host/render --factory card/POLY host/out/factory      # write factory patches + demos
+host/render --factory docs/factory-patches host/out/factory   # factory patches as text + demos
 python3 host/alias.py host/out/saw_sweep.wav           # aliasing check
 ```
 

@@ -17,8 +17,9 @@ QUICK START (2 minutes)
 The one rule: the CHOMPI key (red, top left) is SHIFT. Hold it to get
 to everything else.
 
-1. Play some keys. You're on the FILTER page: knob 1 = cutoff, knob 2 =
-   resonance. The big purple dial is ALSO cutoff, on every page. Sweep it.
+1. Play some keys. A new card starts on patch 2 (brass), on the FILTER
+   page: knob 1 = cutoff, knob 2 = resonance. The big purple dial is ALSO
+   cutoff, on every page. Sweep it.
 
 2. Load a patch: hold CHOMPI, tap white key 1. Try keys 1-7.
    (1 sync lead, 2 brass, 3 unison bass, 4 strings, 5 bell, 6 arp, 7 acid,
@@ -60,8 +61,7 @@ ON ITS OWN, like any stock CHOMPI firmware:
 
 1. Copy FIRMWARE/04_POLY.bin to the ROOT of the card and rename it
    CHOMPI.bin. It must be the only .bin in the root.
-2. Copy the POLY folder to the root of the card (the factory patches).
-3. Power on. The rainbow shows while it installs, then it boots straight
+2. Power on. The rainbow shows while it installs, then it boots straight
    into the synth every time. To switch back to TAPE or anything else, use
    a card with that firmware's CHOMPI.bin, as usual.
 
@@ -70,12 +70,13 @@ https://github.com/sfaber02/CHOMPI/releases):
 
 1. Copy FIRMWARE/04_POLY.bin into /FIRMWARE on the card. It goes on key 4;
    rename 04 to any free number 1-15 to put it on another key.
-2. Copy the POLY folder to the root of the card (the factory patches).
-3. Power on, press the key.
+2. Power on, press the key.
 
 Or send 04_POLY.bin over USB MIDI from the launcher
-(https://ugrossek.github.io/CHOMPI/), then copy the POLY folder over USB
-storage (key 15).
+(https://ugrossek.github.io/CHOMPI/).
+
+That's all: the factory patches are built into the firmware. POLY makes a
+/POLY folder on the card for your saved patches and settings.
 
 
 KNOBS (left to right)

@@ -9,8 +9,8 @@
 # to 04, so key 4 starts it).
 # Standalone: copies it to /CHOMPI.bin, the one file the stock bootloader
 # installs. Refuses if another .bin is in the root (it would compete).
-# Both copy the factory patches to /POLY. Patches you have already saved in
-# /POLY are never overwritten. Nothing else on the card is touched.
+# The factory patches are built into the firmware, so nothing else is copied.
+# Nothing else on the card is touched.
 
 set -euo pipefail
 
@@ -35,13 +35,6 @@ if [[ ! -f "$BIN" ]]; then
     exit 1
 fi
 
-copy_patches() {
-    mkdir -p "$CARD/POLY"
-    rsync -a --ignore-existing --exclude='._*' --exclude='.DS_Store' "$HERE/card/POLY/" "$CARD/POLY/"
-    sync
-    echo "patches:   /POLY ($(ls "$CARD/POLY" | grep -c '^P[0-9]*\.txt$') slots)"
-}
-
 if (( STANDALONE )); then
     shopt -s nullglob
     for f in "$CARD"/*.bin; do
@@ -57,8 +50,8 @@ if (( STANDALONE )); then
         echo "  Its CHOMPI.bin (the launcher) is being replaced by the synth." >&2
     fi
     cp "$BIN" "$CARD/CHOMPI.bin"
+    sync
     echo "installed: /CHOMPI.bin (standalone; the bootloader installs it at next power-on)"
-    copy_patches
     exit 0
 fi
 
@@ -85,5 +78,5 @@ for f in "${taken[@]}"; do
 done
 
 cp "$BIN" "$CARD/FIRMWARE/${SLOT}_POLY.bin"
+sync
 echo "installed: /FIRMWARE/${SLOT}_POLY.bin (key $((10#$SLOT)))"
-copy_patches

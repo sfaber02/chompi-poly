@@ -16,6 +16,7 @@
 #include "OptionsManager.h"
 #include "presets.h"
 #include "synth/engine.h"
+#include "synth/factory.h"
 #include "ui.h"
 #include "diag.h"
 
@@ -146,6 +147,31 @@ static void HandleMidi(const MidiEvent& ev)
     }
 }
 
+/** Loads slot 0-14: its file if there is one, else the built-in factory
+ *  patch for that slot. A file starts from the defaults, so a patch saved by
+ *  an older build with fewer parameters loads the same way every time.
+ *  Main loop only (SD). */
+static bool LoadSlot(int slot)
+{
+    char name[16];
+    PresetStore::SlotName(slot, name);
+    float p[synth::NUM_PARAMS];
+    for(int i = 0; i < synth::NUM_PARAMS; i++)
+        p[i] = synth::kParams[i].def;
+    bool ok = sd_ok && presets.Load(name, p);
+    if(!ok)
+    {
+        const synth::FactoryPatch* f = synth::FactoryForSlot(slot + 1);
+        if(!f)
+            return false;
+        synth::ApplyFactory(*f, p);
+        ok = true;
+    }
+    for(int i = 0; i < synth::NUM_PARAMS; i++)
+        engine.params[i] = p[i];
+    return ok;
+}
+
 /** Channels: out[0..1] headphones, out[2..3] main out. */
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
 {
@@ -245,19 +271,32 @@ int main(void)
 #endif
     }
 
+    // Which slots hold a patch, so CHOMPI can show them: any slot with a
+    // file, plus every factory slot (built in, even with no file).
+    uint16_t used = 0;
+    for(int i = 0; i < synth::kNumFactoryPatches; i++)
+        used |= 1u << (synth::kFactoryPatches[i].slot - 1);
+    bool restored = false;
     if(sd_ok)
     {
-        presets.Load("current.txt", engine.params, &engine.volume);
-        // Which slots hold a patch, so CHOMPI can show them.
-        char     name[16];
-        uint16_t used = 0;
+        restored = presets.Load("current.txt", engine.params, &engine.volume);
+        char name[16];
         for(int s = 0; s < 15; s++)
         {
             PresetStore::SlotName(s, name);
             if(f_stat(name, nullptr) == FR_OK)
                 used |= 1u << s;
         }
-        ui.slots_used = used;
+    }
+    ui.slots_used = used;
+
+    // A brand-new card has no saved sound: start on a good one, not the
+    // bare parameter defaults.
+    if(!restored)
+    {
+        if(!(sd_ok && LoadSlot(synth::kFirstBootSlot - 1)))
+            synth::ApplyFactory(*synth::FactoryForSlot(synth::kFirstBootSlot), engine.params);
+        ui.SetCurrentSlot(synth::kFirstBootSlot - 1);
     }
     ui.Init(&hw, &engine);
 
@@ -341,21 +380,21 @@ int main(void)
             ui.Draw(cpu.GetAvgCpuLoad());
         }
 
+        // Loads work without a card too: factory slots are built in.
+        const int load = ui.load_slot;
+        if(load >= 0)
+        {
+            ui.load_slot = -1;
+            const bool ok = LoadSlot(load);
+            if(ok)
+                ui.dirty = true; // new sound becomes current.txt too
+#if DIAG
+            DiagMainAdd(D_LOAD, load, ok);
+#endif
+        }
+
         if(sd_ok)
         {
-            const int load = ui.load_slot;
-            if(load >= 0)
-            {
-                ui.load_slot = -1;
-                PresetStore::SlotName(load, fname);
-                const bool ok = presets.Load(fname, engine.params);
-                if(ok)
-                    ui.dirty = true; // new sound becomes current.txt too
-#if DIAG
-                DiagMainAdd(D_LOAD, load, ok);
-#endif
-            }
-
             const int save = ui.save_slot;
             if(save >= 0)
             {

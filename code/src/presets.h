@@ -24,7 +24,8 @@ namespace chompi
 class PresetStore
 {
   public:
-    static void SlotName(int slot, char* out) { sprintf(out, "P%02d.txt", slot + 1); }
+    /** out must hold 16 chars. */
+    static void SlotName(int slot, char* out) { snprintf(out, 16, "P%02d.txt", (slot + 1) % 100); }
 
     /** @return true if the file existed and was read */
     bool Load(const char* fname, float* params, float* volume = nullptr)

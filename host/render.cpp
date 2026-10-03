@@ -6,6 +6,7 @@
 // Each test is a patch (param overrides) plus a little score of notes.
 
 #include "../code/src/synth/engine.h"
+#include "../code/src/synth/factory.h"
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
@@ -135,81 +136,19 @@ static std::vector<Note> Scale(int from, int to, float step, float gate)
 }
 
 // ---------------------------------------------------------------------------
-// Factory patches: written to card/POLY as P01.txt.. and rendered as demos.
-
-struct Factory
-{
-    const char*                          name;
-    bool                                 mono; // what the demo plays it as
-    std::vector<std::pair<Param, float>> patch;
-    int                                  slot = 0; // 0 = next in order, else 1-15
-};
-
-static const std::vector<Factory> kFactory = {
-    {"sync_lead", true,
-     {{OSC1_LEVEL, .25f}, {OSC2_LEVEL, 1.f}, {OSC2_DETUNE, .5f}, {SYNC, 1.f}, {SWEEP, .55f},
-      {CUTOFF, .72f}, {RESONANCE, .25f}, {FENV_AMT, .62f}, {FENV_D, .55f}, {FENV_S, .15f},
-      {GLIDE, .25f}, {LFO_PITCH, .12f}, {LFO_RATE, .5f}, {DLY_MIX, 0.12f}, {DLY_TIME, .5f},
-      {REV_MIX, 0.059f}}},
-    {"brass", false,
-     {{OSC2_LEVEL, .85f}, {OSC2_DETUNE, .54f}, {OSC3_WAVE, 0.f}, {OSC3_LEVEL, .5f},
-      {CUTOFF, .42f}, {RESONANCE, .12f}, {FENV_AMT, .76f}, {FENV_A, .33f}, {FENV_D, .5f},
-      {FENV_S, .45f}, {FENV_R, .4f}, {AENV_A, .2f}, {AENV_R, .4f}, {CHORUS, .45f},
-      {REV_MIX, 0.106f}}},
-    {"unison_bass", true,
-     {{OSC2_LEVEL, .8f}, {OSC3_LEVEL, .6f}, {OSC3_OCT, 0.f}, {UNISON, .45f}, {CUTOFF, .33f},
-      {RESONANCE, .35f}, {FENV_AMT, .72f}, {FENV_D, .35f}, {FENV_S, .1f}, {AENV_R, .2f},
-      {DRIVE, .55f}, {SATURATE, .45f}, {REV_MIX, 0.f}}},
-    {"pwm_strings", false,
-     {{OSC1_WAVE, .5f}, {OSC2_WAVE, .5f}, {OSC2_LEVEL, .7f}, {OSC2_DETUNE, .56f},
-      {LFO_PWM, .7f}, {LFO_RATE, .32f}, {CUTOFF, .6f}, {FENV_AMT, .55f}, {AENV_A, .55f},
-      {AENV_R, .6f}, {AENV_S, .9f}, {CHORUS, .85f}, {REV_MIX, 0.23f}, {REV_SIZE, .7f}}},
-    {"xmod_bell", false,
-     {{OSC1_LEVEL, .15f}, {OSC2_WAVE, 1.f}, {OSC2_OCT, 1.f}, {OSC2_LEVEL, 1.f},
-      {OSC2_DETUNE, .5f}, {XMOD, .55f}, {CUTOFF, .85f}, {FENV_AMT, .5f}, {AENV_A, 0.f},
-      {AENV_D, .68f}, {AENV_S, 0.f}, {AENV_R, .62f}, {REV_MIX, 0.194f}, {DLY_MIX, 0.08f}}},
-    {"arp_pluck", false,
-     {{OSC2_LEVEL, .6f}, {OSC2_OCT, 2 / 3.f}, {CUTOFF, .38f}, {RESONANCE, .45f},
-      {FENV_AMT, .8f}, {FENV_D, .3f}, {FENV_S, 0.f}, {AENV_D, .32f}, {AENV_S, 0.f},
-      {AENV_R, .3f}, {ARP_MODE, StepValue(3, 6)}, {ARP_RANGE, StepValue(1, 3)},
-      {ARP_TEMPO, .4f}, {ARP_GATE, .4f}, {DLY_MIX, 0.16f}, {DLY_FDBK, .45f}, {DLY_TIME, .55f},
-      {CHORUS, .3f}}},
-    {"acid", true,
-     {{OSC1_WAVE, 0.f}, {OSC2_LEVEL, 0.f}, {CUTOFF, .3f}, {RESONANCE, .82f}, {FENV_AMT, .78f},
-      {FENV_D, .3f}, {FENV_S, 0.f}, {AENV_S, .9f}, {AENV_R, .1f}, {GLIDE, .2f}, {DRIVE, .6f},
-      {SATURATE, .5f}, {VEL_FILTER, .6f}, {DLY_MIX, 0.08f}, {REV_MIX, 0.f}}},
-
-    // Init: as close to one sine wave as this synth gets. One triangle, with
-    // the filter tracking the keyboard at twice the note's pitch so its few
-    // overtones are shaved off (3rd harmonic ~40 dB down). Everything else
-    // off; organ envelope. A clean starting point for building a sound.
-    {"init", false,
-     {{OSC1_WAVE, 1.f}, {OSC1_OCT, 1 / 3.f}, {OSC1_LEVEL, .8f}, {OSC1_DETUNE, .5f}, {OSC1_PW, .5f},
-      {OSC2_LEVEL, 0.f}, {OSC2_DETUNE, .5f}, {OSC3_LEVEL, 0.f}, {OSC3_DETUNE, .5f},
-      {OSC4_LEVEL, 0.f}, {OSC4_DETUNE, .5f},
-      {SYNC, 0.f}, {XMOD, 0.f}, {SWEEP, 0.f}, {GLIDE, 0.f}, {UNISON, 0.f},
-      {CUTOFF, .5f}, {RESONANCE, 0.f}, {FENV_AMT, .5f}, {KEYTRACK, 1.f}, {DRIVE, 0.f},
-      {VEL_FILTER, 0.f}, {AENV_A, 0.f}, {AENV_D, .5f}, {AENV_S, 1.f}, {AENV_R, .15f},
-      {VEL_AMP, 0.f}, {LFO_PITCH, 0.f}, {LFO_PWM, 0.f}, {LFO_CUTOFF, 0.f},
-      {CHORUS, 0.f}, {DLY_MIX, 0.f}, {REV_MIX, 0.f}, {SATURATE, 0.f}, {NOISE, 0.f},
-      {SPREAD, .5f}, {ARP_MODE, 0.f}, {TUNE, .5f}},
-     15},
-};
+// Factory patches (code/src/synth/factory.h): written out as P01.txt.. for
+// reference (docs/factory-patches) and rendered as demos.
 
 static void WriteFactory(const std::string& card_dir, const std::string& wav_dir)
 {
-    for(size_t i = 0; i < kFactory.size(); i++)
+    for(int i = 0; i < kNumFactoryPatches; i++)
     {
-        const Factory& f    = kFactory[i];
-        const size_t   slot = f.slot ? static_cast<size_t>(f.slot) : i + 1;
-        float          p[NUM_PARAMS];
-        for(int k = 0; k < NUM_PARAMS; k++)
-            p[k] = kParams[k].def;
-        for(auto& kv : f.patch)
-            p[kv.first] = kv.second;
+        const FactoryPatch& f = kFactoryPatches[i];
+        float               p[NUM_PARAMS];
+        ApplyFactory(f, p);
 
         char name[64];
-        snprintf(name, sizeof name, "%s/P%02zu.txt", card_dir.c_str(), slot);
+        snprintf(name, sizeof name, "%s/P%02d.txt", card_dir.c_str(), f.slot);
         FILE* fp = fopen(name, "w");
         if(!fp)
         {
@@ -221,14 +160,17 @@ static void WriteFactory(const std::string& card_dir, const std::string& wav_dir
         fclose(fp);
 
         // Demo: a short phrase in the octave the patch is meant for.
-        Test t{f.name, f.patch, {}, 5.f, f.mono};
+        std::vector<std::pair<Param, float>> patch;
+        for(int k = 0; k < f.count; k++)
+            patch.push_back({static_cast<Param>(f.values[k].id), f.values[k].v});
+        Test t{f.name, patch, {}, 5.f, f.mono};
         const int base = (strstr(f.name, "bass") || strstr(f.name, "acid")) ? 36 : 60;
         if(f.mono)
             t.notes = {{0.1f, 0.5f, base, 1.f}, {0.5f, 0.9f, base + 3, .7f}, {0.9f, 1.3f, base + 7, 1.f},
                        {1.3f, 2.4f, base + 10, .8f}, {2.6f, 3.6f, base + 12, 1.f}};
         else
             t.notes = Chord(0.1f, 2.6f, {base, base + 4, base + 7, base + 11});
-        std::string fname = std::string("P") + std::to_string(slot) + "_" + f.name;
+        std::string fname = std::string("P") + std::to_string(f.slot) + "_" + f.name;
         t.name            = fname.c_str();
         Run(t, wav_dir);
     }
