@@ -166,10 +166,15 @@ class Reverb {
   }
   
  private:
-  // 12-bit as in Rings: +/-8 full scale, so the tank has ~18 dB of headroom
-  // (the 16-bit format the CHOMPI port used clips at 1.0, audibly, on big
-  // chords with a long size; it is why the stock TAPE reverb clips too).
-  typedef FxEngine<32768, FORMAT_12_BIT> E;
+  // Float tank. The CHOMPI port stored it as 16-bit, full scale 1.0, which
+  // clips on big chords with a long size (also why stock TAPE's reverb
+  // clips). Rings' 12-bit format has the headroom but hisses about 18 dB
+  // louder in long tails. Float has neither problem; it costs 128 KB, so the
+  // reverb now lives in main SRAM instead of DTCM (see chompi_main.cpp).
+#ifndef REVERB_FORMAT
+#define REVERB_FORMAT FORMAT_32_BIT
+#endif
+  typedef FxEngine<32768, REVERB_FORMAT> E;
   E engine_;
   
   float amount_;
@@ -181,7 +186,7 @@ class Reverb {
   float lp_decay_1_;
   float lp_decay_2_;
   
-  uint16_t  buffer_[32768];
+  E::T buffer_[32768];
 };
 
 }  // namespace daisysp

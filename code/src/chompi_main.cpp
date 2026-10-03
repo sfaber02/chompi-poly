@@ -45,7 +45,8 @@ MidiUartHandler midi_uart;
 MidiUsbHandler  midi_usb;
 CpuLoadMeter    cpu;
 
-daisysp::Reverb DSY_DTCMRAM_BSS reverb;
+// 128 KB float tank: too big for DTCM, so it sits in main SRAM (.bss).
+daisysp::Reverb reverb;
 synth::Delay::Frame DSY_SDRAM_BSS delay_mem[kDelayFrames];
 
 bool          sd_ok   = false;
