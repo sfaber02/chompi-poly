@@ -39,8 +39,8 @@ to everything else.
 
 6. On the OSC page, CLICK knob 1, 2, 3 or 4 to pick which of the four
    oscillators you're editing. White keys 1-4 always show it: the bright
-   one is selected, dim ones are on, the darkest are switched off. Oscillators 3
-   and 4 start silent: turn up their level (knob 3).
+   one is selected, dim ones are on, the darkest are switched off.
+   Oscillators 3 and 4 start silent: turn up their level (knob 3).
 
 7. Press PLAY for the arpeggiator (again to stop). Hold some keys. LOOP
    latches it (again to unlatch). CHOMPI + volume knob = arp tempo.
