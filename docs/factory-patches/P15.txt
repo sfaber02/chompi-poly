@@ -57,4 +57,3 @@ arp_mode 0.0000
 arp_range 0.0000
 arp_tempo 0.4000
 arp_gate 0.9000
-tune 0.5000

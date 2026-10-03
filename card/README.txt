@@ -33,7 +33,7 @@ to everything else.
    knob LEDs take its colour, so you always know where you are.
 
       black keys, left to right:
-      OSC  MOD  |  FILTER  F-ENV  A-ENV  |  FX  REVERB  |  LFO  ARP  PERFORM
+      OSC  MOD  |  FILTER  F-ENV  A-ENV  |  FX  REVERB  |  LFO  ARP  TUNE
 
 5. Turn knobs 1-4 on that page. The white keys light up to show the value.
    Hold CHOMPI while turning to reach each knob's second control.
@@ -105,7 +105,7 @@ KEYS
   CHOMPI + white key    load patch 1-15; HOLD 1 s to save to that slot
   PLAY                  arpeggiator on/off
   LOOP                  latch the arp, or sustain when the arp is off
-  CHOMPI + PLAY / LOOP  octave down / up
+  CHOMPI + PLAY / LOOP  octave down / up (same as TUNE page knob 1)
 
 Your last sound comes back when you power on.
 
@@ -126,7 +126,15 @@ PAGES (black keys, left to right; CHOMPI + turn in brackets)
               mix: middle = 50/50, top = only reverb
   8  LFO      rate | shape | to pitch (to pulse width) | to cutoff
   9  ARP      mode | octave range | tempo | gate
-  10 PERFORM  glide (noise) | unison (saturation) | spread (drive) | tune
+  10 TUNE     octave | transpose | fine tune | MIDI bend range
+
+A PATCH IS THE SOUND, THE TUNE PAGE IS THE INSTRUMENT. Pages 1-9 (each
+oscillator's octave and detune included, and the arp) are saved in the
+patch. TUNE sets where the whole instrument sits: your octave, your key,
+matching other gear. It is not part of any patch, stays put when you load
+one, and is remembered at power-on. While you're shifted, the TUNE black
+key glows amber. CHOMPI + click a TUNE knob = back to zero. Loading a
+patch also releases LOOP hold.
 
 Patches 1-7: sync lead, brass, unison bass, PWM strings, X-mod bell,
 arp pluck, acid. Patch 15: INIT, one plain oscillator (nearly a sine) with

@@ -83,7 +83,13 @@ enum Param : uint8_t
     ARP_RANGE,
     ARP_TEMPO,
     ARP_GATE,
-    TUNE,
+
+    // Global: the instrument, not the sound. Never saved in a patch or
+    // changed by loading one; remembered at power-on (in current.txt).
+    OCTAVE,
+    TRANSPOSE,
+    FINE_TUNE,
+    BEND_RANGE,
 
     NUM_PARAMS
 };
@@ -98,6 +104,7 @@ struct ParamInfo
     uint8_t     steps;   // 0 = continuous, else number of positions
     bool        bipolar; // centre = zero; drives the key-LED bar display
     uint8_t     cc;      // MIDI CC in, 0 = none
+    bool        global = false; // instrument setting: not part of a patch
 };
 
 // clang-format off
@@ -169,7 +176,11 @@ constexpr ParamInfo kParams[NUM_PARAMS] = {
     {"arp_range",   0.f,   3, false, 90},
     {"arp_tempo",   .4f,   0, false, 115},
     {"arp_gate",    .9f,   0, false, 116},
-    {"tune",        .5f,   0, true,  117},
+
+    {"octave",      .5f,   5, true,  0, true},     // -2..+2
+    {"transpose",   .5f,  25, true,  0, true},     // -12..+12 semitones
+    {"fine_tune",   .5f,   0, true,  117, true},   // +/-50 cents
+    {"bend_range",  1/11.f, 12, false, 0, true},   // 1..12 semitones, default 2
 };
 // clang-format on
 
@@ -201,7 +212,7 @@ enum Page : uint8_t
     PAGE_REVERB,
     PAGE_LFO,
     PAGE_ARP,
-    PAGE_PERFORM,
+    PAGE_TUNE,
     NUM_PAGES
 };
 
@@ -221,7 +232,7 @@ constexpr uint8_t kPageParams[NUM_PAGES][2 * kPageKnobs] = {
     {REV_MIX, REV_SIZE, REV_TONE, SATURATE, kNone, kNone, kNone, kNone},
     {LFO_RATE, LFO_SHAPE, LFO_PITCH, LFO_CUTOFF, kNone, kNone, LFO_PWM, kNone},
     {ARP_MODE, ARP_RANGE, ARP_TEMPO, ARP_GATE, kNone, kNone, kNone, kNone},
-    {GLIDE, UNISON, SPREAD, TUNE, NOISE, SATURATE, DRIVE, kNone},
+    {OCTAVE, TRANSPOSE, FINE_TUNE, BEND_RANGE, kNone, kNone, kNone, kNone},
 };
 
 inline bool IsOscParam(uint8_t id) { return id < OSC2_WAVE; }
@@ -237,7 +248,7 @@ constexpr float kPageColour[NUM_PAGES][3] = {
     {1.f, .9f, .6f},   // REVERB   warm white
     {.6f, 0.f, 1.f},   // LFO      purple
     {1.f, .85f, 0.f},  // ARP      yellow
-    {1.f, 1.f, 1.f},   // PERFORM  white
+    {1.f, 1.f, 1.f},   // TUNE     white
 };
 
 } // namespace synth

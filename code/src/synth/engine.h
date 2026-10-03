@@ -110,7 +110,8 @@ class Engine
         }
     }
 
-    void SetPitchBend(float semitones) { bend_st_ = semitones; }
+    /** -1..1; scaled by the bend range on the TUNE page. */
+    void SetPitchBend(float amount) { bend_ = amount; }
     void SetModWheel(float v) { mod_wheel_ = v; }
 
     void SetArpHold(bool hold) { arp_.SetHold(hold); }
@@ -438,7 +439,10 @@ class Engine
             vp_.level[o]        = op[2] * op[2];
             vp_.pw[o]           = 0.5f + 0.45f * (op[4] - 0.5f) * 2.f;
         }
-        const float tune = (p[TUNE] - 0.5f) * 2.f; // +/- 1 semitone
+        // Global tuning: octave, transpose and fine tune move everything
+        // played (keys, arp, MIDI) together.
+        const float tune = 12.f * (StepIndex(p[OCTAVE], 5) - 2) + (StepIndex(p[TRANSPOSE], 25) - 12)
+                           + (p[FINE_TUNE] - 0.5f); // fine: +/- 50 cents
         for(int o = 0; o < kNumOscs; o++)
             vp_.pitch_offset[o] += tune;
 
@@ -453,7 +457,7 @@ class Engine
         vp_.drive     = 1.f + 7.f * p[DRIVE] * p[DRIVE];
         vp_.vel_filter = p[VEL_FILTER];
         vp_.vel_amp    = p[VEL_AMP];
-        vp_.bend_st    = bend_st_;
+        vp_.bend_st    = bend_ * (StepIndex(p[BEND_RANGE], 12) + 1);
 
         // Glide 0 - 2 s (time to cover most of the distance).
         glide_on_ = p[GLIDE] > 0.01f;
@@ -539,7 +543,7 @@ class Engine
     bool  sustained_[128];
     bool  sustain_    = false;
     bool  glide_on_   = false;
-    float bend_st_    = 0.f;
+    float bend_       = 0.f;
     float mod_wheel_  = 0.f;
     float unison_     = 0.f;
     float spread_     = 0.5f;

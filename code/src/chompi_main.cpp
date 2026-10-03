@@ -140,7 +140,7 @@ static void HandleMidi(const MidiEvent& ev)
         case PitchBend:
         {
             const int bend = (ev.data[1] << 7 | ev.data[0]) - 8192;
-            engine.SetPitchBend(bend / 8192.f * 2.f);
+            engine.SetPitchBend(bend / 8192.f);
             break;
         }
         default: break;
@@ -155,10 +155,11 @@ static bool LoadSlot(int slot)
 {
     char name[16];
     PresetStore::SlotName(slot, name);
+    // Start from the defaults, keeping the global (instrument) settings.
     float p[synth::NUM_PARAMS];
     for(int i = 0; i < synth::NUM_PARAMS; i++)
-        p[i] = synth::kParams[i].def;
-    bool ok = sd_ok && presets.Load(name, p);
+        p[i] = synth::kParams[i].global ? engine.params[i] : synth::kParams[i].def;
+    bool ok = sd_ok && presets.Load(name, p, nullptr, false);
     if(!ok)
     {
         const synth::FactoryPatch* f = synth::FactoryForSlot(slot + 1);
@@ -279,7 +280,7 @@ int main(void)
     bool restored = false;
     if(sd_ok)
     {
-        restored = presets.Load("current.txt", engine.params, &engine.volume);
+        restored = presets.Load("current.txt", engine.params, &engine.volume, true);
         char name[16];
         for(int s = 0; s < 15; s++)
         {
@@ -400,7 +401,7 @@ int main(void)
             {
                 ui.save_slot = -1;
                 PresetStore::SlotName(save, fname);
-                const bool ok = presets.Save(fname, engine.params);
+                const bool ok = presets.Save(fname, engine.params, nullptr, false);
                 if(ok)
                     ui.slots_used = ui.slots_used | (1u << save);
 #if DIAG
@@ -414,7 +415,7 @@ int main(void)
             if(ui.dirty && now - ui.last_change > 3000)
             {
                 ui.dirty = false;
-                const bool ok = presets.Save("current.txt", engine.params, &engine.volume);
+                const bool ok = presets.Save("current.txt", engine.params, &engine.volume, true);
 #if DIAG
                 DiagMainAdd(D_SAVE, 99, ok);
 #else

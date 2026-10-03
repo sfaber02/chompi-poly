@@ -50,7 +50,7 @@ It follows the stock CHOMPI idiom: **CHOMPI is shift.**
 | **CHOMPI + white key** | Load patch 1–15. **Hold 1 s to save** to that slot |
 | PLAY | Arpeggiator on/off |
 | LOOP | Hold: latches the arp, or works as a sustain pedal when the arp is off |
-| CHOMPI + PLAY / LOOP | Octave down / up |
+| CHOMPI + PLAY / LOOP | Octave down / up (a shortcut for the TUNE page's octave) |
 | Toggle switch | Up = mono, down = poly |
 | CHOMPI + PLAY + LOOP at power-on | Shipping mode (battery off), as in the stock firmwares |
 
@@ -69,7 +69,9 @@ When you turn a knob, the white keys briefly show its value as a bar. A centred 
 | 7 | **REVERB** (warm) | mix (middle = 50/50, top = all reverb) | size | tone | saturation |
 | 8 | **LFO** (purple) | rate | shape: tri/sine/saw/square/S&H | → pitch<br>*CHOMPI: → PWM* | → cutoff |
 | 9 | **ARP** (yellow) | mode: off/up/down/up-down/random/as played | range 1–3 oct | tempo (also CHOMPI + volume while the arp runs) | gate (full = legato) |
-| 10 | **PERFORM** (white) | glide<br>*CHOMPI: noise* | unison<br>*CHOMPI: saturation* | spread<br>*CHOMPI: drive* | fine tune |
+| 10 | **TUNE** (white) | octave −2…+2 | transpose ±12 semitones | fine tune ±50 cents | MIDI bend range 1–12 |
+
+**A patch is the sound; the TUNE page is the instrument.** Everything on pages 1–9 is saved in the patch, including each oscillator's octave and detune, and the arp. TUNE sets where the whole instrument sits: your octave, your key, and matching other gear. It isn't saved in patches, doesn't change when you load one, and is remembered at power-on. While you're shifted (octave, transpose or fine tune off centre), the TUNE black key glows amber. CHOMPI + click resets a TUNE knob to zero. Loading a patch also releases LOOP hold, so a new patch never starts with stuck notes.
 
 - **Sync** locks oscillators 2–4 to oscillator 1.
 - **Sync sweep** lets the filter envelope push their pitch, which gives the classic sync scream. Turn up osc 2's level and lower osc 1's to hear it on its own.
@@ -109,7 +111,7 @@ When you turn a knob, the white keys briefly show its value as a bar. A centred 
 | 74 | cutoff | 81 | LFO → cutoff | 89 | arp mode | 109–112 | filter A D S R |
 | 75 | amp decay | 82 | delay time | 90 | arp range | 113 / 114 | velocity → filter / amp |
 | | | 83 | feedback | 91 | reverb mix | 115 / 116 | arp tempo / gate |
-| | | | | 93 | chorus | 117 | fine tune |
+| | | | | 93 | chorus | 117 | fine tune (global) |
 | | | | | 102 / 103 | sync / cross-mod | | |
 
 ## Building

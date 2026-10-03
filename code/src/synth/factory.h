@@ -82,7 +82,7 @@ constexpr ParamValue kInit[] = {
     {KEYTRACK, 1.f}, {DRIVE, 0.f}, {VEL_FILTER, 0.f}, {AENV_A, 0.f}, {AENV_D, .5f},
     {AENV_S, 1.f}, {AENV_R, .15f}, {VEL_AMP, 0.f}, {LFO_PITCH, 0.f}, {LFO_PWM, 0.f},
     {LFO_CUTOFF, 0.f}, {CHORUS, 0.f}, {DLY_MIX, 0.f}, {REV_MIX, 0.f}, {SATURATE, 0.f},
-    {NOISE, 0.f}, {SPREAD, .5f}, {ARP_MODE, 0.f}, {TUNE, .5f},
+    {NOISE, 0.f}, {SPREAD, .5f}, {ARP_MODE, 0.f},
 };
 
 // Init (slot 15): as close to one sine wave as this synth gets. One
@@ -117,11 +117,13 @@ inline const FactoryPatch* FactoryForSlot(int slot)
     return nullptr;
 }
 
-/** Writes the whole patch (defaults + overrides) into params. */
+/** Writes the whole patch (defaults + overrides) into params. Global
+ *  (instrument) settings are left as they are. */
 inline void ApplyFactory(const FactoryPatch& f, float* params)
 {
     for(int i = 0; i < NUM_PARAMS; i++)
-        params[i] = kParams[i].def;
+        if(!kParams[i].global)
+            params[i] = kParams[i].def;
     for(int i = 0; i < f.count; i++)
         params[f.values[i].id] = f.values[i].v;
 }

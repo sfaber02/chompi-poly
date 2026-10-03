@@ -21,7 +21,7 @@
  *    CHOMPI + white key      load preset; hold 1 s to save
  *    PLAY                    arpeggiator on/off
  *    LOOP                    hold: latches the arp, or sustains when it's off
- *    CHOMPI + PLAY / LOOP    octave down / up
+ *    CHOMPI + PLAY / LOOP    octave down / up (the TUNE page's octave)
  *    toggle switch           mono / poly
  */
 #pragma once
@@ -156,14 +156,14 @@ class Ui
         if(Pressed(Sw::KEY_27))
         {
             if(shift_)
-                octave_ = octave_ > -2 ? octave_ - 1 : octave_;
+                StepParam(OCTAVE, -1, now); // shortcut for the TUNE page's octave
             else
                 ToggleArp(now);
         }
         if(Pressed(Sw::KEY_28))
         {
             if(shift_)
-                octave_ = octave_ < 2 ? octave_ + 1 : octave_;
+                StepParam(OCTAVE, +1, now);
             else
                 hold_ = !hold_;
         }
@@ -302,6 +302,14 @@ class Ui
             }
         }
 
+        // Shifted? The TUNE page's black key glows amber whenever octave,
+        // transpose or fine tune is off centre, so you can't forget.
+        if(!shift_ && !showing && TuneShifted())
+        {
+            const float b = 0.35f + 0.15f * sinf(now * 0.004f);
+            SetSmtLedFloat(kKeyLed[static_cast<int>(kBlackKeys[PAGE_TUNE])], b, b * 0.55f, 0.f);
+        }
+
         // Preset load / save confirmation.
         if(flash_slot_ >= 0 && now - flash_at_ < 600)
         {
@@ -316,11 +324,26 @@ class Ui
         fill_led_data();
     }
 
-    int  Octave() const { return octave_; }
     int  CurrentSlot() const { return current_slot_; }
     void SetCurrentSlot(int s) { current_slot_ = s; }
 
   private:
+    bool TuneShifted() const
+    {
+        const float* p = engine_->params;
+        return StepIndex(p[OCTAVE], 5) != 2 || StepIndex(p[TRANSPOSE], 25) != 12
+               || fabsf(p[FINE_TUNE] - 0.5f) > 0.004f;
+    }
+
+    void StepParam(int id, int dir, uint32_t now)
+    {
+        const int steps     = kParams[id].steps;
+        int       i         = StepIndex(engine_->params[id], steps) + dir;
+        i                   = i < 0 ? 0 : (i >= steps ? steps - 1 : i);
+        engine_->params[id] = StepValue(i, steps);
+        Changed(id, now);
+    }
+
     /** A fresh press of a button that isn't a key.
      *  libDaisy's 4021 driver only reports a new rising edge after the
      *  falling edge has been read, so the release must be consumed too. Without
@@ -350,7 +373,9 @@ class Ui
     {
         // The bar takes the colour of the page the parameter lives on.
         shown_colour_ = kPageColour[page_];
-        if(param == ARP_MODE || param == ARP_TEMPO)
+        if(param == OCTAVE)
+            shown_colour_ = kPageColour[PAGE_TUNE];
+        else if(param == ARP_MODE || param == ARP_TEMPO)
             shown_colour_ = kPageColour[PAGE_ARP];
         else if(param == CUTOFF || param == RESONANCE)
             shown_colour_ = kPageColour[PAGE_FILTER];
@@ -395,7 +420,9 @@ class Ui
             return;
         }
 
-        const int note = kKeyNote[sw] + 12 * octave_;
+        // Octave and transpose are applied by the engine to everything played,
+        // so keys send their own note numbers.
+        const int note = kKeyNote[sw];
         sounding_note_[sw] = note;
         engine_->NoteOn(note, kKeyVelocity);
     }
@@ -415,6 +442,7 @@ class Ui
             {
                 load_slot = preset_key_;
                 Flash(preset_key_, false, now);
+                hold_ = false; // a new patch never starts with held notes
             }
             if(used || preset_saved_)
                 current_slot_ = preset_key_;
@@ -504,7 +532,7 @@ class Ui
         const ParamInfo& info = kParams[shown_param_];
         const float      v    = engine_->params[shown_param_];
 
-        if(info.steps)
+        if(info.steps && info.steps <= 15) // more steps than keys: drawn as a bar below
         {
             const int idx = StepIndex(v, info.steps);
             for(int s = 0; s < info.steps && s < 15; s++)
@@ -574,8 +602,7 @@ class Ui
         {
             if(kKeyNote[i] == 0)
                 continue;
-            const int note = kKeyNote[i] + 12 * octave_;
-            if(engine_->NoteSounding(note))
+            if(engine_->NoteSounding(kKeyNote[i]))
                 SetSmtLedFloat(kKeyLed[i], 1.f, 1.f, 1.f);
         }
     }
@@ -593,7 +620,6 @@ class Ui
     bool  last_tog_     = false;
     bool  early_logged_ = false;
     bool  last_sustain_ = false;
-    int   octave_ = 0;
     int   current_slot_ = -1;
     float arp_last_mode_ = 0.f;
 

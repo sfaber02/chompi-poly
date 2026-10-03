@@ -28,7 +28,9 @@ class PresetStore
     static void SlotName(int slot, char* out) { snprintf(out, 16, "P%02d.txt", (slot + 1) % 100); }
 
     /** @return true if the file existed and was read */
-    bool Load(const char* fname, float* params, float* volume = nullptr)
+    /** @param globals  also read the global (instrument) settings; only
+     *                  current.txt carries them, never a patch slot. */
+    bool Load(const char* fname, float* params, float* volume = nullptr, bool globals = true)
     {
         if(f_open(&fil_, fname, FA_READ) != FR_OK)
             return false;
@@ -55,6 +57,8 @@ class PresetStore
                 {
                     if(strcmp(line, synth::kParams[i].name) == 0)
                     {
+                        if(synth::kParams[i].global && !globals)
+                            break;
                         params[i] = val;
                         break;
                     }
@@ -65,11 +69,12 @@ class PresetStore
         return true;
     }
 
-    bool Save(const char* fname, const float* params, const float* volume = nullptr)
+    bool Save(const char* fname, const float* params, const float* volume = nullptr, bool globals = true)
     {
         size_t len = 0;
         for(int i = 0; i < synth::NUM_PARAMS; i++)
-            Append(&len, synth::kParams[i].name, params[i]);
+            if(globals || !synth::kParams[i].global)
+                Append(&len, synth::kParams[i].name, params[i]);
         if(volume)
             Append(&len, "volume", *volume);
 

@@ -156,7 +156,8 @@ static void WriteFactory(const std::string& card_dir, const std::string& wav_dir
             exit(1);
         }
         for(int k = 0; k < NUM_PARAMS; k++)
-            fprintf(fp, "%s %.4f\n", kParams[k].name, p[k]);
+            if(!kParams[k].global) // instrument settings are not part of a patch
+                fprintf(fp, "%s %.4f\n", kParams[k].name, p[k]);
         fclose(fp);
 
         // Demo: a short phrase in the octave the patch is meant for.
