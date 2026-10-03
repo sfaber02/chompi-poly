@@ -31,7 +31,7 @@ It follows the stock CHOMPI idiom: **CHOMPI is shift.**
 | **CHOMPI + turn knob 1–4** | That knob's second control on this page (knobs without one go dark while CHOMPI is held) |
 | CHOMPI + click knob | Reset it to default |
 | Click knob 1–4 on the OSC page | Pick which oscillator the knobs edit |
-| Transport knob | Arp tempo |
+| Big purple knob | Filter cutoff, on every page. CHOMPI + turn: resonance |
 | Volume knob (right) | Master volume. CHOMPI + turn: saturation. Click: all notes off |
 | **CHOMPI + black key** | Choose a page (below). The keybed flashes the page colour |
 | **CHOMPI + white key** | Load patch 1–15. **Hold 1 s to save** to that slot |

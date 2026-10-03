@@ -13,7 +13,7 @@
  *    CHOMPI + knob 1-4       the page's second layer
  *    CHOMPI + click knob     reset it to default
  *    OSC page: click knob 1-4 to pick oscillator 1-4
- *    transport knob          arp tempo
+ *    big purple knob         filter cutoff on every page (CHOMPI: resonance)
  *    volume knob             master volume; CHOMPI + turn: saturation;
  *                            click: all notes off
  *    CHOMPI + black key      choose page
@@ -217,10 +217,10 @@ class Ui
             SetPthLedFloat(kKnobLed[k], page_c[0] * b, page_c[1] * b, page_c[2] * b);
         }
 
-        // Transport knob: arp tempo, in the arp page's yellow.
+        // Big purple knob: cutoff (or resonance with CHOMPI), in the filter's blue.
         {
-            const float* c = kPageColour[PAGE_ARP];
-            const float  b = 0.1f + 0.9f * engine_->params[ARP_TEMPO];
+            const float* c = kPageColour[PAGE_FILTER];
+            const float  b = 0.1f + 0.9f * engine_->params[shift_ ? RESONANCE : CUTOFF];
             SetPthLedFloat(kKnobLed[4], c[0] * b, c[1] * b, c[2] * b);
             SetPthLedFloat(kKnobLed2[4], c[0] * b, c[1] * b, c[2] * b);
         }
@@ -306,8 +306,10 @@ class Ui
     {
         // The bar takes the colour of the page the parameter lives on.
         shown_colour_ = kPageColour[page_];
-        if(param == ARP_TEMPO || param == ARP_MODE)
+        if(param == ARP_MODE)
             shown_colour_ = kPageColour[PAGE_ARP];
+        else if(param == CUTOFF || param == RESONANCE)
+            shown_colour_ = kPageColour[PAGE_FILTER];
         shown_param_ = param;
         shown_at_    = now;
         dirty        = true;
@@ -432,7 +434,7 @@ class Ui
         if(knob == 5)
             id = SATURATE;
         else if(knob == 4)
-            id = ARP_TEMPO;
+            id = shift_ ? RESONANCE : CUTOFF;
         else
             id = ParamAt(knob, shift_);
         if(id < 0)
