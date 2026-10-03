@@ -47,7 +47,8 @@ CpuLoadMeter    cpu;
 daisysp::Reverb DSY_DTCMRAM_BSS reverb;
 synth::Delay::Frame DSY_SDRAM_BSS delay_mem[kDelayFrames];
 
-bool    sd_ok      = false;
+bool          sd_ok   = false;
+volatile bool running = false; // audio outputs silence until startup is done
 uint8_t midi_ch_in = 0;
 
 static void HandleMidi(const MidiEvent& ev)
@@ -80,6 +81,15 @@ static void HandleMidi(const MidiEvent& ev)
 /** Channels: out[0..1] headphones, out[2..3] main out. */
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
 {
+    // While booting: silence, and leave the controls to main(), which is
+    // scanning them for the shipping-mode combo.
+    if(!running)
+    {
+        for(size_t i = 0; i < size; i++)
+            out[0][i] = out[1][i] = out[2][i] = out[3][i] = 0.f;
+        return;
+    }
+
     cpu.OnBlockStart();
 
     hw.ProcessAllControls();
@@ -125,6 +135,13 @@ int main(void)
 {
     hw.Init();
 
+    // Start the codecs' clocks straight away, playing silence, as the stock
+    // firmwares do. A codec that is set up but left unclocked while we read
+    // the card makes a loud noise. The engine is ready (and its reverb
+    // cleared) before the first block.
+    engine.Init(hw.seed.AudioSampleRate(), delay_mem, kDelayFrames, &reverb);
+    hw.StartAudio(AudioCallback);
+
     hw.MpWrite(0x0c, 0B01010001); // BATT_LOW to 3 V
     hw.MpReadAll();
     for(size_t i = 0; i < 10; i++)
@@ -155,8 +172,6 @@ int main(void)
         midi_ch_in = options.midi_ch_in;
     }
 
-    // Engine before audio starts, never after.
-    engine.Init(hw.seed.AudioSampleRate(), delay_mem, kDelayFrames, &reverb);
     if(sd_ok)
         presets.Load("current.txt", engine.params, &engine.volume);
     ui.Init(&hw, &engine);
@@ -187,7 +202,8 @@ int main(void)
     if(ship > 4000)
         hw.MpWrite(0x08, 0B10111111);
 
-    hw.StartAudio(AudioCallback);
+    ui.Init(&hw, &engine); // restarts its ignore-the-first-second timer
+    running = true;
 
     hw.usb_sw.Write(false);       // give USB control
     System::Delay(1);
