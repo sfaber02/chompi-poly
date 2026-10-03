@@ -32,7 +32,7 @@ It follows the stock CHOMPI idiom: **CHOMPI is shift.**
 | CHOMPI + click knob | Reset it to default |
 | Click knob 1–4 on the OSC page | Pick which oscillator the knobs edit |
 | Big purple knob | Filter cutoff, on every page. CHOMPI + turn: resonance |
-| Volume knob (right) | Master volume. CHOMPI + turn: saturation. Click: all notes off |
+| Volume knob (right) | Master volume. CHOMPI + turn: arp tempo while the arp is on, saturation otherwise. Click: all notes off |
 | **CHOMPI + black key** | Choose a page (below). The keybed flashes the page colour |
 | **CHOMPI + white key** | Load patch 1–15. **Hold 1 s to save** to that slot |
 | PLAY | Arpeggiator on/off |
@@ -55,7 +55,7 @@ When you turn a knob, the white keys briefly show its value as a bar. A centred 
 | 6 | **LFO** (purple) | rate | shape: tri/sine/saw/square/S&H | → pitch<br>*CHOMPI: → PWM* | → cutoff |
 | 7 | **FX** (teal) | chorus<br>*CHOMPI: stereo spread* | delay time | feedback | delay mix |
 | 8 | **REVERB** (warm) | size | mix | tone | saturation |
-| 9 | **ARP** (yellow) | mode: off/up/down/up-down/random/as played | range 1–3 oct | tempo | gate |
+| 9 | **ARP** (yellow) | mode: off/up/down/up-down/random/as played | range 1–3 oct | tempo (also CHOMPI + volume while the arp runs) | gate (full = legato) |
 | 10 | **PERFORM** (white) | glide<br>*CHOMPI: noise* | unison<br>*CHOMPI: saturation* | spread<br>*CHOMPI: drive* | fine tune |
 
 - **Sync** locks oscillators 2–4 to oscillator 1.

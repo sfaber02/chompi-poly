@@ -45,7 +45,7 @@ class Arp
     void SetMode(ArpMode m) { mode_ = m; }
     void SetOctaves(int o) { octaves_ = o < 1 ? 1 : (o > 3 ? 3 : o); }
     void SetTempo(float bpm) { step_seconds_ = 60.f / bpm / 4.f; }
-    void SetGate(float g) { gate_ = Clamp(g, 0.05f, 1.f); }
+    void SetGate(float g) { gate_ = Clamp(0.05f + 0.95f * g, 0.05f, 1.f); }
 
     void SetHold(bool hold)
     {
@@ -113,7 +113,8 @@ class Arp
         }
 
         clock_ += dt;
-        if(playing_ >= 0 && clock_ >= step_seconds_ * gate_ && gate_ < 1.f)
+        const bool legato = gate_ >= 0.99f;
+        if(playing_ >= 0 && !legato && clock_ >= step_seconds_ * gate_)
         {
             ev[n++]  = {false, playing_, 0.f};
             playing_ = -1;
@@ -124,12 +125,25 @@ class Arp
             clock_ -= step_seconds_;
             if(clock_ > step_seconds_)
                 clock_ = 0.f;
-            if(playing_ >= 0)
-                ev[n++] = {false, playing_, 0.f};
 
-            float vel;
+            float     vel;
             const int note = NextNote(&vel);
-            ev[n++]  = {true, note, vel};
+            if(legato && playing_ >= 0)
+            {
+                // Full gate: new note on before the old one off, so in mono
+                // mode it slides over without restarting the envelopes.
+                if(note != playing_)
+                {
+                    ev[n++] = {true, note, vel};
+                    ev[n++] = {false, playing_, 0.f};
+                }
+            }
+            else
+            {
+                if(playing_ >= 0)
+                    ev[n++] = {false, playing_, 0.f};
+                ev[n++] = {true, note, vel};
+            }
             playing_ = note;
         }
         return n;

@@ -14,7 +14,8 @@
  *    CHOMPI + click knob     reset it to default
  *    OSC page: click knob 1-4 to pick oscillator 1-4
  *    big purple knob         filter cutoff on every page (CHOMPI: resonance)
- *    volume knob             master volume; CHOMPI + turn: saturation;
+ *    volume knob             master volume; CHOMPI + turn: arp tempo while
+ *                            the arp is on, saturation otherwise;
  *                            click: all notes off
  *    CHOMPI + black key      choose page
  *    CHOMPI + white key      load preset; hold 1 s to save
@@ -151,14 +152,14 @@ class Ui
         }
 
         // PLAY and LOOP
-        if(sr.RisingEdge(static_cast<int>(Sw::KEY_27)))
+        if(Pressed(Sw::KEY_27))
         {
             if(shift_)
                 octave_ = octave_ > -2 ? octave_ - 1 : octave_;
             else
                 ToggleArp(now);
         }
-        if(sr.RisingEdge(static_cast<int>(Sw::KEY_28)))
+        if(Pressed(Sw::KEY_28))
         {
             if(shift_)
                 octave_ = octave_ < 2 ? octave_ + 1 : octave_;
@@ -183,7 +184,7 @@ class Ui
             if(k == 4)
                 clicked = hw_->enc[4].RisingEdge();
             else
-                clicked = sr.RisingEdge(static_cast<int>(kKnobClick[k]));
+                clicked = Pressed(kKnobClick[k]);
             if(clicked)
             {
                 diag.Add(now, D_CLICK, k, shift_);
@@ -319,6 +320,20 @@ class Ui
     void SetCurrentSlot(int s) { current_slot_ = s; }
 
   private:
+    /** A fresh press of a button that isn't a key.
+     *  libDaisy's 4021 driver only reports a new rising edge after the
+     *  falling edge has been read, so the release must be consumed too. Without
+     *  this, PLAY, LOOP and the knob clicks only ever worked once. */
+    bool Pressed(Sw sw)
+    {
+        auto&     sr = hw_->button_sr;
+        const int i  = static_cast<int>(sw);
+        if(sr.RisingEdge(i))
+            return true;
+        sr.FallingEdge(i);
+        return false;
+    }
+
     /** Parameter under knob 0-3, on the shift layer if alt. -1 if none. */
     int ParamAt(int knob, bool alt) const
     {
@@ -334,7 +349,7 @@ class Ui
     {
         // The bar takes the colour of the page the parameter lives on.
         shown_colour_ = kPageColour[page_];
-        if(param == ARP_MODE)
+        if(param == ARP_MODE || param == ARP_TEMPO)
             shown_colour_ = kPageColour[PAGE_ARP];
         else if(param == CUTOFF || param == RESONANCE)
             shown_colour_ = kPageColour[PAGE_FILTER];
@@ -461,7 +476,7 @@ class Ui
 
         int id;
         if(knob == 5)
-            id = SATURATE;
+            id = engine_->ArpOn() ? ARP_TEMPO : SATURATE; // CHOMPI + volume
         else if(knob == 4)
             id = shift_ ? RESONANCE : CUTOFF;
         else

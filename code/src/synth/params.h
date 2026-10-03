@@ -168,7 +168,7 @@ constexpr ParamInfo kParams[NUM_PARAMS] = {
     {"arp_mode",    0.f,   6, false, 89},
     {"arp_range",   0.f,   3, false, 90},
     {"arp_tempo",   .4f,   0, false, 115},
-    {"arp_gate",    .5f,   0, false, 116},
+    {"arp_gate",    .9f,   0, false, 116},
     {"tune",        .5f,   0, true,  117},
 };
 // clang-format on

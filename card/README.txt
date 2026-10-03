@@ -38,7 +38,9 @@ to everything else.
    oscillators you're editing (white keys 1-4 show which). Oscillators 3
    and 4 start silent: turn up their level (knob 3).
 
-7. Press PLAY for the arpeggiator. Hold some keys. Press LOOP to latch it.
+7. Press PLAY for the arpeggiator (again to stop). Hold some keys. LOOP
+   latches it (again to unlatch). CHOMPI + volume knob = arp tempo.
+   Gate (ARP page, knob 4) all the way up = legato.
 
 8. Save: hold CHOMPI, then HOLD a white key for 1 second. It blinks red
    when saved. Your current sound also comes back by itself at power-on.
@@ -72,7 +74,8 @@ KNOBS (left to right)
   5    big purple dial                filter cutoff, always
        CHOMPI + turn                  resonance
   6    volume                         master volume (click: all notes off)
-       CHOMPI + turn                  saturation
+       CHOMPI + turn                  arp tempo while the arp is on,
+                                      saturation otherwise
 
 When you turn a knob the white keys show its value:
   bar from the left      normal knob
