@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CHOMPI SYNTH cheat sheet</title>
+<style>
+  @page { size: A4 landscape; margin: 8mm; }
+  :root {
+    --ink: #1d1b19;
+    --muted: #6b655e;
+    --line: #ddd6cc;
+    --paper: #fbf8f3;
+    --card: #ffffff;
+    --purple: #7d4bd8;
+    --red: #e2574c;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--paper); color: var(--ink);
+    font: 13px/1.35 "Helvetica Neue", Helvetica, Arial, sans-serif; }
+  .sheet { width: 1600px; padding: 34px 40px 30px; }
+  header { display: flex; align-items: baseline; gap: 22px; margin-bottom: 18px; }
+  h1 { font-size: 34px; letter-spacing: .5px; margin: 0; font-weight: 800; }
+  .rule { background: var(--red); color: #fff; font-weight: 800; font-size: 17px;
+    padding: 6px 14px; border-radius: 8px; }
+  .sub { color: var(--muted); font-size: 14px; margin-left: auto; }
+
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--muted); margin: 0 0 8px; }
+
+  /* knobs */
+  .knobs { display: grid; grid-template-columns: repeat(4, 1fr) 1.25fr 1.4fr; gap: 10px; margin-bottom: 20px; }
+  .knob { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
+    display: flex; gap: 12px; align-items: flex-start; }
+  .dial { flex: none; width: 42px; height: 42px; border-radius: 50%; background: #222;
+    color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 18px;
+    box-shadow: inset 0 -4px 0 rgba(0,0,0,.35); }
+  .dial.purple { background: var(--purple); width: 54px; height: 54px; font-size: 22px; }
+  .knob b { display: block; font-size: 15px; }
+  .knob .s { color: var(--muted); }
+  .knob .s i { color: var(--ink); font-style: normal; font-weight: 700; }
+  .knob.span4 { grid-column: span 4; }
+
+  /* pages */
+  .pages { display: flex; gap: 22px; margin-bottom: 20px; }
+  .group { display: flex; gap: 10px; }
+  .page { width: 140px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; overflow: hidden; }
+  .page .top { padding: 8px 10px 7px; font-weight: 800; font-size: 15px; display: flex;
+    align-items: center; gap: 8px; color: #111; }
+  .page .top .n { width: 22px; height: 22px; border-radius: 6px; background: #1d1b19; color: #fff;
+    display: grid; place-items: center; font-size: 12px; }
+  .page ol { list-style: none; margin: 0; padding: 6px 10px 9px; }
+  .page li { padding: 4px 0; border-top: 1px dashed var(--line); display: grid;
+    grid-template-columns: 16px 1fr; gap: 4px; }
+  .page li:first-child { border-top: 0; }
+  .page li .k { color: var(--muted); font-weight: 700; font-size: 11px; padding-top: 1px; }
+  .page li em { display: block; font-style: italic; color: var(--muted); font-size: 11.5px; }
+  .page li em::before { content: "⇧ "; font-style: normal; color: var(--red); }
+  .page .foot { padding: 0 10px 9px; font-size: 11px; color: var(--muted); }
+
+  /* bottom */
+  .bottom { display: grid; grid-template-columns: 1.35fr 1fr 1fr; gap: 14px; }
+  .box { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; }
+  table { border-collapse: collapse; width: 100%; }
+  td { padding: 4px 0; vertical-align: top; border-top: 1px dashed var(--line); }
+  tr:first-child td { border-top: 0; }
+  td:first-child { font-weight: 700; white-space: nowrap; padding-right: 14px; width: 1%; }
+  .bar { display: inline-flex; gap: 2px; vertical-align: middle; margin-right: 6px; }
+  .bar span { width: 9px; height: 9px; border-radius: 2px; background: #e6e0d7; }
+  .bar span.on { background: #0099ff; }
+  .patches { columns: 2; margin: 0; padding-left: 20px; }
+  .patches li { padding: 2px 0; }
+  footer { margin-top: 14px; color: var(--muted); font-size: 11.5px; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<header>
+  <h1>CHOMPI SYNTH</h1>
+  <span class="rule">CHOMPI key = SHIFT &nbsp;⇧</span>
+  <span class="sub">Hold CHOMPI for pages (black keys), patches (white keys) and every knob's second control.</span>
+</header>
+
+<h2>Knobs, left to right</h2>
+<div class="knobs">
+  <div class="knob"><div class="dial">1</div><div><b>Speedometer</b><span class="s">Page control 1</span></div></div>
+  <div class="knob"><div class="dial">2</div><div><b>Left flag</b><span class="s">Page control 2</span></div></div>
+  <div class="knob"><div class="dial">3</div><div><b>Right flag</b><span class="s">Page control 3</span></div></div>
+  <div class="knob"><div class="dial">4</div><div><b>Wand</b><span class="s">Page control 4</span></div></div>
+  <div class="knob"><div class="dial purple">5</div><div><b>Filter cutoff</b><span class="s">on every page<br><i>⇧ resonance</i></span></div></div>
+  <div class="knob"><div class="dial">6</div><div><b>Volume</b><span class="s"><i>⇧ arp tempo</i> (arp on)<br><i>⇧ saturation</i> (arp off)<br>click: all notes off</span></div></div>
+  <div class="knob span4" style="display:block">
+    <span class="s"><i>Knobs 1–4:</i> turn = the page's control &nbsp;·&nbsp; <i>⇧ + turn</i> = its second control (knobs without one go dark) &nbsp;·&nbsp;
+    <i>⇧ + click</i> = reset to default &nbsp;·&nbsp; <i>OSC page: click knob 1–4</i> = pick oscillator 1–4</span>
+  </div>
+</div>
+
+<h2>Pages: ⇧ + black key (left to right). The keybed flashes the page colour; knob LEDs keep it.</h2>
+<div class="pages">
+  <div class="group">
+    <div class="page"><div class="top" style="background:#ff8a26"><span class="n">1</span>OSC</div>
+      <ol>
+        <li><span class="k">1</span><span>wave<br><small>saw · pulse · tri</small><em>pulse width</em></span></li>
+        <li><span class="k">2</span><span>octave<br><small>16′ 8′ 4′ 2′</small></span></li>
+        <li><span class="k">3</span><span>level<em>noise</em></span></li>
+        <li><span class="k">4</span><span>detune</span></li>
+      </ol>
+      <div class="foot">click knob 1–4 = osc 1–4</div>
+    </div>
+    <div class="page"><div class="top" style="background:#ff4f78"><span class="n">2</span>MOD</div>
+      <ol>
+        <li><span class="k">1</span><span>sync on/off</span></li>
+        <li><span class="k">2</span><span>cross-mod</span></li>
+        <li><span class="k">3</span><span>sync sweep</span></li>
+        <li><span class="k">4</span><span>glide<em>unison</em></span></li>
+      </ol>
+    </div>
+  </div>
+  <div class="group">
+    <div class="page"><div class="top" style="background:#3db2ff"><span class="n">3</span>FILTER</div>
+      <ol>
+        <li><span class="k">1</span><span>cutoff</span></li>
+        <li><span class="k">2</span><span>resonance<em>drive</em></span></li>
+        <li><span class="k">3</span><span>env amount ±</span></li>
+        <li><span class="k">4</span><span>key tracking</span></li>
+      </ol>
+    </div>
+    <div class="page"><div class="top" style="background:#7b8cff"><span class="n">4</span>F‑ENV</div>
+      <ol>
+        <li><span class="k">1</span><span>attack<em>velocity → filter</em></span></li>
+        <li><span class="k">2</span><span>decay</span></li>
+        <li><span class="k">3</span><span>sustain</span></li>
+        <li><span class="k">4</span><span>release</span></li>
+      </ol>
+    </div>
+    <div class="page"><div class="top" style="background:#4ee387"><span class="n">5</span>A‑ENV</div>
+      <ol>
+        <li><span class="k">1</span><span>attack<em>velocity → amp</em></span></li>
+        <li><span class="k">2</span><span>decay</span></li>
+        <li><span class="k">3</span><span>sustain</span></li>
+        <li><span class="k">4</span><span>release</span></li>
+      </ol>
+    </div>
+  </div>
+  <div class="group">
+    <div class="page"><div class="top" style="background:#b57cff"><span class="n">6</span>LFO</div>
+      <ol>
+        <li><span class="k">1</span><span>rate</span></li>
+        <li><span class="k">2</span><span>shape<br><small>tri · sine · saw · sq · S&amp;H</small></span></li>
+        <li><span class="k">3</span><span>→ pitch<em>→ pulse width</em></span></li>
+        <li><span class="k">4</span><span>→ cutoff</span></li>
+      </ol>
+    </div>
+    <div class="page"><div class="top" style="background:#3fe6cf"><span class="n">7</span>FX</div>
+      <ol>
+        <li><span class="k">1</span><span>chorus<em>stereo spread</em></span></li>
+        <li><span class="k">2</span><span>delay time</span></li>
+        <li><span class="k">3</span><span>delay feedback</span></li>
+        <li><span class="k">4</span><span>delay mix</span></li>
+      </ol>
+    </div>
+  </div>
+  <div class="group">
+    <div class="page"><div class="top" style="background:#ffe6a6"><span class="n">8</span>REVERB</div>
+      <ol>
+        <li><span class="k">1</span><span>size</span></li>
+        <li><span class="k">2</span><span>mix</span></li>
+        <li><span class="k">3</span><span>tone</span></li>
+        <li><span class="k">4</span><span>saturation</span></li>
+      </ol>
+    </div>
+    <div class="page"><div class="top" style="background:#ffd83d"><span class="n">9</span>ARP</div>
+      <ol>
+        <li><span class="k">1</span><span>mode<br><small>off · up · down · up‑down · random · played</small></span></li>
+        <li><span class="k">2</span><span>range 1–3 oct</span></li>
+        <li><span class="k">3</span><span>tempo</span></li>
+        <li><span class="k">4</span><span>gate<br><small>full = legato</small></span></li>
+      </ol>
+    </div>
+    <div class="page"><div class="top" style="background:#ebe6de"><span class="n">10</span>PERFORM</div>
+      <ol>
+        <li><span class="k">1</span><span>glide<em>noise</em></span></li>
+        <li><span class="k">2</span><span>unison<em>saturation</em></span></li>
+        <li><span class="k">3</span><span>spread<em>drive</em></span></li>
+        <li><span class="k">4</span><span>fine tune</span></li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<div class="bottom">
+  <div class="box">
+    <h2>Keys &amp; switch</h2>
+    <table>
+      <tr><td>Keys</td><td>play (two octaves)</td></tr>
+      <tr><td>⇧ + white key</td><td>load patch 1–15 · <b>hold 1 s to save</b> (blinks red)</td></tr>
+      <tr><td>PLAY</td><td>arpeggiator on / off</td></tr>
+      <tr><td>LOOP</td><td>latch the arp · sustain when the arp is off</td></tr>
+      <tr><td>⇧ + PLAY / LOOP</td><td>octave down / up</td></tr>
+      <tr><td>Toggle switch</td><td>up = <b>mono</b> (glide, unison) · down = <b>poly</b> (6 voices)</td></tr>
+      <tr><td>⇧ + PLAY + LOOP at power‑on</td><td>battery off (shipping mode)</td></tr>
+    </table>
+  </div>
+  <div class="box">
+    <h2>White keys show the value you're turning</h2>
+    <table>
+      <tr><td><span class="bar"><span class="on"></span><span class="on"></span><span class="on"></span><span></span><span></span></span></td><td>bar from the left: normal knob</td></tr>
+      <tr><td><span class="bar"><span></span><span></span><span class="on"></span><span class="on"></span><span></span></span></td><td>bar from the middle: ± knob (middle = zero)</td></tr>
+      <tr><td><span class="bar"><span></span><span class="on"></span><span></span><span></span><span></span></span></td><td>one key: a stepped choice (wave, octave, shape…)</td></tr>
+    </table>
+    <p class="s" style="margin:8px 0 0;color:var(--muted)">Your sound is saved by itself and comes back at power‑on.<br>Lost? ⇧ + click resets a knob. Click volume = all notes off.</p>
+  </div>
+  <div class="box">
+    <h2>Factory patches (⇧ + white key)</h2>
+    <ol class="patches">
+      <li>sync lead</li><li>brass</li><li>unison bass</li><li>PWM strings</li>
+      <li>X‑mod bell</li><li>arp pluck</li><li>acid</li>
+    </ol>
+    <h2 style="margin-top:10px">Try</h2>
+    <p style="margin:0">MOD: sync on + sync sweep up = <b>sync scream</b> · cross-mod = <b>bells</b> · mono + unison = <b>huge bass</b></p>
+  </div>
+</div>
+
+<footer>
+  <span>CHOMPI SYNTH by hiwatts · github.com/sfaber02/chompi-synth</span>
+  <span>Community firmware, not an official CHOMPI Club release</span>
+</footer>
+
+</div>
+</body>
+</html>

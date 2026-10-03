@@ -400,9 +400,12 @@ class Engine
             const float* op = &p[OSC1_WAVE + o * kOscParams];
             vp_.wave[o]     = static_cast<Wave>(StepIndex(op[0], 3));
             const int oct   = StepIndex(op[1], 4); // 16' 8' 4' 2'
-            // Detune: +/- 50 cents, finer near the middle.
+            // Detune: linear, +/- 60 cents, about 1 cent per encoder click.
+            // (It used to be squared "for fine control near the middle", which
+            // made the first dozen clicks inaudible.) Only heard against another
+            // oscillator: two at nearly the same pitch beat and thicken.
             const float d   = (op[3] - 0.5f) * 2.f;
-            vp_.pitch_offset[o] = 12.f * (oct - 1) + 0.5f * d * fabsf(d);
+            vp_.pitch_offset[o] = 12.f * (oct - 1) + 0.6f * d;
             vp_.level[o]        = op[2] * op[2];
             vp_.pw[o]           = 0.5f + 0.45f * (op[4] - 0.5f) * 2.f;
         }
