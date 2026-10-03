@@ -490,16 +490,6 @@ class Ui
             shown_at_     = 0;
             osc_shown_at_ = now;
         }
-        else if(page_ == PAGE_TUNE)
-        {
-            // On TUNE a plain click puts that setting back to zero.
-            const int id = ParamAt(knob, false);
-            if(id >= 0)
-            {
-                engine_->params[id] = kParams[id].def;
-                Changed(id, now);
-            }
-        }
     }
 
     void KnobTurn(int knob, int inc, uint32_t now)
