@@ -4,7 +4,7 @@ An analog-style synth for the CHOMPI, after the Korg Mono/Poly. Each voice has f
 
 It runs as one firmware on the [multi-firmware launcher](https://github.com/sfaber02/CHOMPI) card, alongside TAPE, TEMPO and WAVE.
 
-> Status: in development. First hardware test 2026-10-03.
+> Status: beta. Download the latest from [Releases](https://github.com/sfaber02/chompi-synth/releases).
 
 ## Install
 
