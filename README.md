@@ -69,7 +69,7 @@ When you turn a knob, the white keys briefly show its value as a bar. A centred 
 | 7 | **REVERB** (warm) | mix (middle = 50/50, top = all reverb) | size | tone | saturation |
 | 8 | **LFO** (purple) | rate | shape: tri/sine/saw/square/S&H | → pitch<br>*CHOMPI: → PWM* | → cutoff |
 | 9 | **ARP** (yellow) | mode: off/up/down/up-down/random/as played | range 1–3 oct | tempo (also CHOMPI + volume while the arp runs) | gate (full = legato) |
-| 10 | **TUNE** (white) | octave −2…+2 | transpose ±12 semitones | fine tune ±50 cents | MIDI bend range 1–12 |
+| 10 | **TUNE** (white) | octave −2…+2 | transpose ±12 semitones | fine tune ±50 cents (1-cent steps) | MIDI bend range 1–12 |
 
 **A patch is the sound; the TUNE page is the instrument.** Everything on pages 1–9 is saved in the patch, including each oscillator's octave and detune, and the arp. TUNE sets where the whole instrument sits: your octave, your key, and matching other gear. It isn't saved in patches, doesn't change when you load one, and is remembered at power-on. While you're shifted (octave, transpose or fine tune off centre), the TUNE black key glows amber. CHOMPI + click resets a TUNE knob to zero. Loading a patch also releases LOOP hold, so a new patch never starts with stuck notes.
 
@@ -94,11 +94,10 @@ When you turn a knob, the white keys briefly show its value as a bar. A centred 
 
 > MIDI is implemented but hasn't been tested on hardware yet.
 
-
 - **Input:** DIN and USB.
 - **Channel:** set in `/POLY/options.json`.
 - **Notes:** with velocity.
-- **Other messages:** pitch bend (±2), mod wheel (CC 1, adds vibrato), sustain (CC 64), volume (CC 7), all notes off (CC 120/123).
+- **Other messages:** pitch bend (range set on the TUNE page, default ±2), mod wheel (CC 1, adds vibrato), sustain (CC 64), volume (CC 7), all notes off (CC 120/123).
 - **Parameter CCs:**
 
 | CC | | CC | | CC | | CC | |
@@ -138,7 +137,7 @@ python3 host/alias.py host/out/saw_sweep.wav           # aliasing check
 
 | Path | What |
 |---|---|
-| `code/src/synth/` | The instrument, pure C++ with no hardware dependency: `osc.h` (band-limited oscillators with polyBLEP), `ladder.h` (ZDF ladder filter), `env.h`, `lfo.h`, `voice.h`, `arp.h`, `chorus.h`, `delay.h`, `engine.h`, `params.h` (every parameter, page and CC) |
+| `code/src/synth/` | The instrument, pure C++ with no hardware dependency: `osc.h` (band-limited oscillators with polyBLEP), `ladder.h` (ZDF ladder filter), `env.h`, `lfo.h`, `voice.h`, `arp.h`, `chorus.h`, `delay.h`, `engine.h`, `params.h` (every parameter, page and CC), `factory.h` (the built-in factory patches) |
 | `code/src/ui.h` | Keys, knobs, LEDs |
 | `code/src/presets.h` | Patch files on the SD card |
 | `code/src/chompi_main.cpp` | Startup, audio interrupt, main loop |

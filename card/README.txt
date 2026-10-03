@@ -1,10 +1,11 @@
 POLY  beta
 ==========
 
-A four-oscillator analog-style synth for the CHOMPI, inspired by the Korg Mono/Poly.
-Each voice has four oscillators (saw / pulse / triangle) with sync and cross-mod,
-a resonant 24 dB filter, two envelopes, an LFO, chorus, delay, reverb and an
-arpeggiator. The toggle switch picks mono (up) or 6-voice poly (down).
+A four-oscillator analog-style synth for the CHOMPI, inspired by the
+Korg Mono/Poly. Each voice has four oscillators (saw / pulse / triangle)
+with sync and cross-mod, a resonant 24 dB filter, two envelopes, an LFO,
+chorus, delay, reverb and an arpeggiator. The toggle switch picks mono (up)
+or 6-voice poly (down).
 
 BETA: tested on one CHOMPI so far. Back up your card first.
 (Had the earlier "CHOMPI SYNTH" test build? POLY renames your /SYNTH
@@ -48,7 +49,13 @@ to everything else.
 
 8. Save: hold CHOMPI, then HOLD a white key for 1 second. It blinks red
    when saved. While CHOMPI is held, the patch you're on is blue and
-   slots with a patch glow dim. Your current sound also comes back by itself at power-on.
+   slots with a patch glow dim. Your current sound also comes back by
+   itself at power-on.
+
+9. Play in another key or octave: the TUNE page (last black key) has
+   octave, transpose and fine tune. They stay put when you change patches.
+   While you're shifted, that black key glows amber. CHOMPI + click a
+   knob there to go back to zero.
 
 Lost? Hold CHOMPI and click a knob to reset it. Click the volume knob
 (far right) to stop all notes.
@@ -127,6 +134,7 @@ PAGES (black keys, left to right; CHOMPI + turn in brackets)
   8  LFO      rate | shape | to pitch (to pulse width) | to cutoff
   9  ARP      mode | octave range | tempo | gate
   10 TUNE     octave | transpose | fine tune | MIDI bend range
+              octave -2..+2, transpose +/-12 semitones, fine +/-50 cents
 
 A PATCH IS THE SOUND, THE TUNE PAGE IS THE INSTRUMENT. Pages 1-9 (each
 oscillator's octave and detune included, and the arp) are saved in the
@@ -140,8 +148,9 @@ Patches 1-7: sync lead, brass, unison bass, PWM strings, X-mod bell,
 arp pluck, acid. Patch 15: INIT, one plain oscillator (nearly a sine) with
 everything else off. Start there to build your own.
 
-MIDI in (DIN and USB, NOT YET TESTED on hardware): notes with velocity, pitch bend, mod wheel (vibrato),
-sustain pedal, and CCs for most parameters (cutoff 74, resonance 71, ...).
+MIDI in (DIN and USB), NOT YET TESTED on hardware: notes with velocity,
+pitch bend (range on the TUNE page), mod wheel (vibrato), sustain pedal,
+and CCs for most parameters (cutoff 74, resonance 71, ...).
 
 
 Feedback to hiwatts. Built on CHOMPI Club's open-source firmware (MIT).
