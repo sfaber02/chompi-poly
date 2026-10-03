@@ -19,7 +19,8 @@ to everything else.
    resonance. The big purple dial is ALSO cutoff, on every page. Sweep it.
 
 2. Load a patch: hold CHOMPI, tap white key 1. Try keys 1-7.
-   (1 sync lead, 2 brass, 3 unison bass, 4 strings, 5 bell, 6 arp, 7 acid)
+   (1 sync lead, 2 brass, 3 unison bass, 4 strings, 5 bell, 6 arp, 7 acid,
+   15 INIT = one plain oscillator with everything off: start from scratch)
 
 3. Flip the toggle switch: UP = mono (big leads and basses),
    DOWN = poly (chords).
@@ -116,7 +117,8 @@ PAGES (black keys, left to right; CHOMPI + turn in brackets)
   10 PERFORM  glide (noise) | unison (saturation) | spread (drive) | tune
 
 Patches 1-7: sync lead, brass, unison bass, PWM strings, X-mod bell,
-arp pluck, acid.
+arp pluck, acid. Patch 15: INIT, one plain oscillator (nearly a sine) with
+everything else off. Start there to build your own.
 
 MIDI in (DIN and USB): notes with velocity, pitch bend, mod wheel (vibrato),
 sustain pedal, and CCs for most parameters (cutoff 74, resonance 71, ...).

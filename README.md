@@ -73,6 +73,8 @@ When you turn a knob, the white keys briefly show its value as a bar. A centred 
 6. arp pluck
 7. acid (mono, up an octave with CHOMPI+LOOP if you like)
 
+15. **init**: one plain oscillator, as close to a sine as it gets, with every effect and modulation off. Start here to build a sound from scratch.
+
 ### MIDI
 
 - **Input:** DIN and USB.

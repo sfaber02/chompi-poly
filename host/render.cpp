@@ -142,6 +142,7 @@ struct Factory
     const char*                          name;
     bool                                 mono; // what the demo plays it as
     std::vector<std::pair<Param, float>> patch;
+    int                                  slot = 0; // 0 = next in order, else 1-15
 };
 
 static const std::vector<Factory> kFactory = {
@@ -177,13 +178,30 @@ static const std::vector<Factory> kFactory = {
      {{OSC1_WAVE, 0.f}, {OSC2_LEVEL, 0.f}, {CUTOFF, .3f}, {RESONANCE, .82f}, {FENV_AMT, .78f},
       {FENV_D, .3f}, {FENV_S, 0.f}, {AENV_S, .9f}, {AENV_R, .1f}, {GLIDE, .2f}, {DRIVE, .6f},
       {SATURATE, .5f}, {VEL_FILTER, .6f}, {DLY_MIX, 0.08f}, {REV_MIX, 0.f}}},
+
+    // Init: as close to one sine wave as this synth gets. One triangle, with
+    // the filter tracking the keyboard at twice the note's pitch so its few
+    // overtones are shaved off (3rd harmonic ~40 dB down). Everything else
+    // off; organ envelope. A clean starting point for building a sound.
+    {"init", false,
+     {{OSC1_WAVE, 1.f}, {OSC1_OCT, 1 / 3.f}, {OSC1_LEVEL, .8f}, {OSC1_DETUNE, .5f}, {OSC1_PW, .5f},
+      {OSC2_LEVEL, 0.f}, {OSC2_DETUNE, .5f}, {OSC3_LEVEL, 0.f}, {OSC3_DETUNE, .5f},
+      {OSC4_LEVEL, 0.f}, {OSC4_DETUNE, .5f},
+      {SYNC, 0.f}, {XMOD, 0.f}, {SWEEP, 0.f}, {GLIDE, 0.f}, {UNISON, 0.f},
+      {CUTOFF, .5f}, {RESONANCE, 0.f}, {FENV_AMT, .5f}, {KEYTRACK, 1.f}, {DRIVE, 0.f},
+      {VEL_FILTER, 0.f}, {AENV_A, 0.f}, {AENV_D, .5f}, {AENV_S, 1.f}, {AENV_R, .15f},
+      {VEL_AMP, 0.f}, {LFO_PITCH, 0.f}, {LFO_PWM, 0.f}, {LFO_CUTOFF, 0.f},
+      {CHORUS, 0.f}, {DLY_MIX, 0.f}, {REV_MIX, 0.f}, {SATURATE, 0.f}, {NOISE, 0.f},
+      {SPREAD, .5f}, {ARP_MODE, 0.f}, {TUNE, .5f}},
+     15},
 };
 
 static void WriteFactory(const std::string& card_dir, const std::string& wav_dir)
 {
     for(size_t i = 0; i < kFactory.size(); i++)
     {
-        const Factory& f = kFactory[i];
+        const Factory& f    = kFactory[i];
+        const size_t   slot = f.slot ? static_cast<size_t>(f.slot) : i + 1;
         float          p[NUM_PARAMS];
         for(int k = 0; k < NUM_PARAMS; k++)
             p[k] = kParams[k].def;
@@ -191,7 +209,7 @@ static void WriteFactory(const std::string& card_dir, const std::string& wav_dir
             p[kv.first] = kv.second;
 
         char name[64];
-        snprintf(name, sizeof name, "%s/P%02zu.txt", card_dir.c_str(), i + 1);
+        snprintf(name, sizeof name, "%s/P%02zu.txt", card_dir.c_str(), slot);
         FILE* fp = fopen(name, "w");
         if(!fp)
         {
@@ -210,7 +228,7 @@ static void WriteFactory(const std::string& card_dir, const std::string& wav_dir
                        {1.3f, 2.4f, base + 10, .8f}, {2.6f, 3.6f, base + 12, 1.f}};
         else
             t.notes = Chord(0.1f, 2.6f, {base, base + 4, base + 7, base + 11});
-        std::string fname = std::string("P") + std::to_string(i + 1) + "_" + f.name;
+        std::string fname = std::string("P") + std::to_string(slot) + "_" + f.name;
         t.name            = fname.c_str();
         Run(t, wav_dir);
     }
