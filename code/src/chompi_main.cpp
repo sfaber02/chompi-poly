@@ -1,0 +1,236 @@
+/** @file chompi_main.cpp
+ *  @brief CHOMPI SYNTH: a four-oscillator analog-style synth for the CHOMPI.
+ *
+ *  Two places code runs:
+ *   1. AudioCallback(): the audio interrupt, every 24 samples (0.5 ms). Scans
+ *      the keys and knobs, reads MIDI, and renders audio. Everything that
+ *      touches the engine's notes happens here, so no locking is needed.
+ *   2. The main loop: LEDs, the SD card (presets, autosave) and the battery.
+ *
+ *  Hardware layer (hardware.h, encoder.*, temp_led_stuff.h) and the reverb
+ *  come from CHOMPI Club's WAVE firmware.
+ */
+#include "hardware.h"
+#include "temp_led_stuff.h"
+#include "fatfs.h"
+#include "OptionsManager.h"
+#include "presets.h"
+#include "synth/engine.h"
+#include "ui.h"
+
+using namespace daisy;
+using namespace chompi;
+
+#define DSY_DTCMRAM_BSS __attribute__((section(".dtcmram_bss")))
+
+static constexpr size_t kDelayFrames = 96000; // 2 s at 48 kHz
+
+Hardware       hw;
+synth::Engine  engine;
+Ui             ui;
+SdmmcHandler   sdmmc;
+FatFSInterface fsi;
+OptionsManager options;
+PresetStore    presets;
+MidiUartHandler midi_uart;
+MidiUsbHandler  midi_usb;
+CpuLoadMeter    cpu;
+
+daisysp::Reverb DSY_DTCMRAM_BSS reverb;
+synth::Delay::Frame DSY_SDRAM_BSS delay_mem[kDelayFrames];
+
+bool    sd_ok      = false;
+uint8_t midi_ch_in = 0;
+
+static void HandleMidi(const MidiEvent& ev)
+{
+    if(ev.channel != midi_ch_in)
+        return;
+    switch(ev.type)
+    {
+        case NoteOn:
+            if(ev.data[1] == 0)
+                engine.NoteOff(ev.data[0]);
+            else
+                engine.NoteOn(ev.data[0], ev.data[1] / 127.f);
+            break;
+        case NoteOff: engine.NoteOff(ev.data[0]); break;
+        case ControlChange:
+            if(options.midi_cc_in || ev.data[0] == 64 || ev.data[0] == 1)
+                ui.MidiCc(ev.data[0], ev.data[1]);
+            break;
+        case PitchBend:
+        {
+            const int bend = (ev.data[1] << 7 | ev.data[0]) - 8192;
+            engine.SetPitchBend(bend / 8192.f * 2.f);
+            break;
+        }
+        default: break;
+    }
+}
+
+/** Channels: out[0..1] headphones, out[2..3] main out. */
+void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
+{
+    cpu.OnBlockStart();
+
+    hw.ProcessAllControls();
+    ui.Poll();
+
+    midi_uart.Listen();
+    while(midi_uart.HasEvents())
+        HandleMidi(midi_uart.PopEvent());
+    while(midi_usb.HasEvents())
+        HandleMidi(midi_usb.PopEvent());
+
+    engine.Process(out[0], out[1], size);
+    for(size_t i = 0; i < size; i++)
+    {
+        out[2][i] = out[0][i];
+        out[3][i] = out[1][i];
+    }
+
+    cpu.OnBlockEnd();
+}
+
+/** Startup sweep on the keybed in the synth's colours, so you know which
+ *  firmware you booted. */
+static void BootAnimation()
+{
+    for(int step = 0; step < 40; step++)
+    {
+        for(int s = 0; s < 15; s++)
+        {
+            const float d = fabsf(s - step * 0.5f);
+            const float b = d < 3.f ? 1.f - d / 3.f : 0.f;
+            SetSmtLedFloat(kKeyLed[static_cast<int>(kWhiteKeys[s])], b, b * 0.45f, 0.f);
+        }
+        fill_led_data();
+        System::Delay(12);
+    }
+    for(int i = 0; i < 25; i++)
+        SetSmtLed(i, 0, 0, 0);
+    fill_led_data();
+}
+
+int main(void)
+{
+    hw.Init();
+
+    hw.MpWrite(0x0c, 0B01010001); // BATT_LOW to 3 V
+    hw.MpReadAll();
+    for(size_t i = 0; i < 10; i++)
+    {
+        hw.LowBatteryLockoutCheck();
+        System::Delay(10);
+    }
+
+    LedSetup();
+
+    // SD card. Everything we keep lives in /SYNTH; with no folder we stay in
+    // the root so a bare card still works.
+    System::Delay(100);
+    SdmmcHandler::Config sd_cfg;
+    sd_cfg.speed = SdmmcHandler::Speed::FAST;
+    sd_cfg.width = SdmmcHandler::BusWidth::BITS_4;
+    sdmmc.Init(sd_cfg);
+    fsi.Init(FatFSInterface::Config::MEDIA_SD);
+    sd_ok = f_mount(&fsi.GetSDFileSystem(), fsi.GetSDPath(), 1) == FR_OK;
+    if(sd_ok)
+    {
+        if(f_chdir("/SYNTH") != FR_OK)
+        {
+            f_mkdir("/SYNTH");
+            f_chdir("/SYNTH");
+        }
+        options.Init();
+        midi_ch_in = options.midi_ch_in;
+    }
+
+    // Engine before audio starts, never after.
+    engine.Init(hw.seed.AudioSampleRate(), delay_mem, kDelayFrames, &reverb);
+    if(sd_ok)
+        presets.Load("current.txt", engine.params, &engine.volume);
+    ui.Init(&hw, &engine);
+
+    MidiUartHandler::Config uart_cfg;
+    midi_uart.Init(uart_cfg);
+    midi_uart.StartReceive();
+    MidiUsbHandler::Config usb_cfg;
+    usb_cfg.transport_config.periph = MidiUsbTransport::Config::EXTERNAL;
+    midi_usb.Init(usb_cfg);
+    midi_usb.Listen();
+
+    cpu.Init(hw.seed.AudioSampleRate(), hw.seed.AudioBlockSize());
+
+    BootAnimation();
+
+    // Boot combo from the stock firmwares: CHOMPI + PLAY + LOOP held at
+    // power-on puts the battery chip in shipping mode (fully off).
+    uint32_t ship = 0;
+    for(int i = 0; i < 5000; i++)
+    {
+        hw.ProcessAllControls();
+        ship += hw.button_sr.State(int(Hardware::SwId::KEY_26))
+                && hw.button_sr.State(int(Hardware::SwId::KEY_27))
+                && hw.button_sr.State(int(Hardware::SwId::KEY_28));
+        System::DelayUs(100);
+    }
+    if(ship > 4000)
+        hw.MpWrite(0x08, 0B10111111);
+
+    hw.StartAudio(AudioCallback);
+
+    hw.usb_sw.Write(false);       // give USB control
+    System::Delay(1);
+    hw.MpWrite(0x0a, 0B00100100); // AutoDPDM
+    System::Delay(1);
+    hw.usb_sw.Write(true);        // take USB control
+
+    uint32_t last_draw = 0, last_batt = 0;
+    char     fname[16];
+
+    while(1)
+    {
+        const uint32_t now = System::GetNow();
+
+        if(now - last_draw >= 16)
+        {
+            last_draw = now;
+            ui.Draw(cpu.GetAvgCpuLoad());
+        }
+
+        if(sd_ok)
+        {
+            const int load = ui.load_slot;
+            if(load >= 0)
+            {
+                ui.load_slot = -1;
+                PresetStore::SlotName(load, fname);
+                if(presets.Load(fname, engine.params))
+                    ui.dirty = true; // new sound becomes current.txt too
+            }
+
+            const int save = ui.save_slot;
+            if(save >= 0)
+            {
+                ui.save_slot = -1;
+                PresetStore::SlotName(save, fname);
+                presets.Save(fname, engine.params);
+            }
+
+            // Remember the sound a few seconds after the last change.
+            if(ui.dirty && now - ui.last_change > 3000)
+            {
+                ui.dirty = false;
+                presets.Save("current.txt", engine.params, &engine.volume);
+            }
+        }
+
+        if(now - last_batt > 20)
+        {
+            last_batt = now;
+            hw.LowBatteryLockoutCheck();
+        }
+    }
+}

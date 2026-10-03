@@ -1,0 +1,130 @@
+# CHOMPI SYNTH
+
+An analog-style synth for the CHOMPI, after the Korg Mono/Poly. Each voice has four oscillators (saw, pulse with PWM, triangle) with hard sync and cross-mod. They feed a resonant 24 dB ladder filter, a filter envelope, an amp envelope and an LFO. After the voices come chorus, a ping-pong delay, reverb and saturation. There's also an arpeggiator. The toggle switch picks mono (with unison and glide) or 6-voice poly.
+
+It runs as one firmware on the [multi-firmware launcher](https://github.com/sfaber02/CHOMPI) card, alongside TAPE, TEMPO and WAVE.
+
+> Status: in development. Not yet tested on hardware.
+
+## Install
+
+Using a launcher card, either:
+
+- copy it on with the card in your computer:
+
+  ```
+  ./install.sh /Volumes/YOUR_CARD        # key 4
+  ./install.sh /Volumes/YOUR_CARD 5      # or pick the key
+  ```
+
+  This copies `/FIRMWARE/04_SYNTH.bin` and the factory patches into `/SYNTH`. It never overwrites patches you've saved.
+- or, with the launcher showing, send `code/src/build/CHOMPI.bin` to a free slot over USB MIDI. Then copy `card/SYNTH/` to the card yourself to get the factory patches.
+
+## Playing it
+
+| Do | Does |
+|---|---|
+| Keys | Play (two octaves from C3) |
+| Knobs 1–5 | The five parameters of the current page |
+| Knob 6 | Master volume. Click for all notes off |
+| **CHOMPI + black key** | Choose a page (below) |
+| **CHOMPI + white key** | Load patch 1–15. **Hold 1 s to save** to that slot |
+| CHOMPI + turn a knob | Fine adjust |
+| Click a knob | Reset it to default. On the OSC page, knobs 1–4 pick the oscillator instead |
+| PLAY | Arpeggiator on/off |
+| LOOP | Hold: latches the arp, or works as a sustain pedal when the arp is off |
+| CHOMPI + PLAY / LOOP | Octave down / up |
+| Toggle switch | Mono / poly |
+| CHOMPI + PLAY + LOOP at power-on | Shipping mode (battery off), as in the stock firmwares |
+
+When you turn a knob, the white keys briefly show its value as a bar. A centred bar means the knob is bipolar, and stepped settings light one key. Hold CHOMPI to see the page map on the black keys and your patch slots on the white keys. The sound you leave is saved to `/SYNTH/current.txt` and comes back at power-on.
+
+### Pages (black keys, left to right)
+
+| Key | Page | Knob 1 | Knob 2 | Knob 3 | Knob 4 | Knob 5 |
+|---|---|---|---|---|---|---|
+| 1 | **OSC** (orange) | wave: saw/pulse/tri | octave: 16′ 8′ 4′ 2′ | level | detune | pulse width |
+| 2 | **MOD** (pink) | sync | cross-mod | sync sweep | glide | unison |
+| 3 | **FILTER** (blue) | cutoff | resonance | env amount ± | key track | drive |
+| 4 | **F-ENV** (indigo) | attack | decay | sustain | release | velocity → filter |
+| 5 | **A-ENV** (green) | attack | decay | sustain | release | velocity → amp |
+| 6 | **LFO** (purple) | rate | shape: tri/sine/saw/square/S&H | → pitch | → PWM | → cutoff |
+| 7 | **FX** (teal) | chorus | delay time | feedback | delay mix | stereo spread |
+| 8 | **REVERB** (warm) | size | mix | tone | saturation | noise |
+| 9 | **ARP** (yellow) | mode: off/up/down/up-down/random/as played | range 1–3 oct | tempo | gate | fine tune |
+| 10 | **PERFORM** (white) | noise | spread | saturation | fine tune | glide |
+
+- **Sync** locks oscillators 2–4 to oscillator 1.
+- **Sync sweep** lets the filter envelope push their pitch, which gives the classic sync scream. Turn up osc 2's level and lower osc 1's to hear it on its own.
+- **Cross-mod** frequency-modulates 2–4 from oscillator 1, for bells and clangs.
+- **Unison** (mono mode) stacks all six voices on one note, detuned and spread.
+
+### Factory patches
+
+1. sync lead (mono)
+2. brass (poly)
+3. unison bass (mono)
+4. PWM strings (poly)
+5. X-mod bell
+6. arp pluck
+7. acid (mono, up an octave with CHOMPI+LOOP if you like)
+
+### MIDI
+
+- **Input:** DIN and USB.
+- **Channel:** set in `/SYNTH/options.json`.
+- **Notes:** with velocity.
+- **Other messages:** pitch bend (±2), mod wheel (CC 1, adds vibrato), sustain (CC 64), volume (CC 7), all notes off (CC 120/123).
+- **Parameter CCs:**
+
+| CC | | CC | | CC | | CC | |
+|---|---|---|---|---|---|---|---|
+| 5 | glide | 76 | amp sustain | 84 | delay mix | 104 | sync sweep |
+| 10 | spread | 77 | LFO rate | 85 | reverb size | 105 | unison |
+| 71 | resonance | 78 | LFO shape | 86 | reverb tone | 106 | filter env amount |
+| 72 | amp release | 79 | LFO → pitch | 87 | saturation | 107 | key track |
+| 73 | amp attack | 80 | LFO → PWM | 88 | noise | 108 | drive |
+| 74 | cutoff | 81 | LFO → cutoff | 89 | arp mode | 109–112 | filter A D S R |
+| 75 | amp decay | 82 | delay time | 90 | arp range | 113 / 114 | velocity → filter / amp |
+| | | 83 | feedback | 91 | reverb mix | 115 / 116 | arp tempo / gate |
+| | | | | 93 | chorus | 117 | fine tune |
+| | | | | 102 / 103 | sync / cross-mod | | |
+
+## Building
+
+```
+cd code/src
+PATH=/path/to/gcc-arm-none-eabi-10.3-2021.10/bin:$PATH make
+```
+
+This produces `code/src/build/CHOMPI.bin`. The libraries in `code/libs` are CHOMPI Club's adapted libDaisy and DaisySP, vendored with their prebuilt `.a` files. Don't swap in stock versions.
+
+### Listening without hardware
+
+`host/` builds the same engine on your computer and renders test patches and the factory patches to WAV:
+
+```
+make -C host
+host/render host/out                                   # test sounds
+host/render --factory card/SYNTH host/out/factory      # write factory patches + demos
+python3 host/alias.py host/out/saw_sweep.wav           # aliasing check
+```
+
+## Layout
+
+| Path | What |
+|---|---|
+| `code/src/synth/` | The instrument, pure C++ with no hardware dependency: `osc.h` (band-limited oscillators with polyBLEP), `ladder.h` (ZDF ladder filter), `env.h`, `lfo.h`, `voice.h`, `arp.h`, `chorus.h`, `delay.h`, `engine.h`, `params.h` (every parameter, page and CC) |
+| `code/src/ui.h` | Keys, knobs, LEDs |
+| `code/src/presets.h` | Patch files on the SD card |
+| `code/src/chompi_main.cpp` | Startup, audio interrupt, main loop |
+| `hardware.h`, `encoder.*`, `temp_led_stuff.h`, `reverb.h`, `fx_engine.h`, `OptionsManager.h`, `chompi_sram.lds` | Taken from CHOMPI Club's WAVE firmware |
+
+## Credits
+
+- Synth by hiwatts ([@sfaber02](https://github.com/sfaber02)).
+- Built on CHOMPI Club's open-source CHOMPI firmware (MIT). The hardware layer is from WAVE, with Electrosmith's libDaisy.
+- The reverb is Mutable Instruments' Rings reverb by Emilie Gillet (MIT).
+- The oscillator anti-aliasing follows the polyBLEP approach in Mutable Instruments' Plaits. The filter follows Vadim Zavalishin's *The Art of VA Filter Design*.
+
+This is a community firmware, not an official CHOMPI Club release. The CHOMPI name belongs to CHOMPI Club.
