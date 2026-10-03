@@ -1,8 +1,8 @@
-# CHOMPI SYNTH
+# POLY, a synth firmware for the CHOMPI
 #
 # Build with ARM GCC 10.3-2021.10 (the same toolchain as TAPE and WAVE):
 #   PATH=/path/to/gcc-arm-none-eabi-10.3-2021.10/bin:$PATH make
-# Output: build/CHOMPI.bin. Install it as /FIRMWARE/04_SYNTH.bin on a
+# Output: build/CHOMPI.bin. Install it as /FIRMWARE/04_POLY.bin on a
 # multi-firmware launcher card (or send it over USB MIDI from the launcher).
 
 TARGET = CHOMPI
@@ -23,7 +23,7 @@ CPP_SOURCES = chompi_main.cpp \
 
 USE_FATFS = 1
 
-# DIAG=1 logs UI events to /SYNTH/diag.txt (debug builds only)
+# DIAG=1 logs UI events to /POLY/diag.txt (debug builds only)
 DIAG ?= 0
 C_DEFS += -DDIAG=$(DIAG)
 

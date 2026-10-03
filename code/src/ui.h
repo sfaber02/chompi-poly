@@ -84,7 +84,7 @@ class Ui
     volatile int  save_slot  = -1;
     volatile bool dirty      = false; // something changed since the last autosave
     volatile uint32_t last_change = 0;
-    volatile uint16_t slots_used  = 0; // bit n = /SYNTH/P(n+1).txt exists; main keeps it
+    volatile uint16_t slots_used  = 0; // bit n = /POLY/P(n+1).txt exists; main keeps it
 
     void Init(Hardware* hw, Engine* engine)
     {

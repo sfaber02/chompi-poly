@@ -135,7 +135,7 @@ static std::vector<Note> Scale(int from, int to, float step, float gate)
 }
 
 // ---------------------------------------------------------------------------
-// Factory patches: written to card/SYNTH as P01.txt.. and rendered as demos.
+// Factory patches: written to card/POLY as P01.txt.. and rendered as demos.
 
 struct Factory
 {

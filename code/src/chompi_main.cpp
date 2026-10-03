@@ -1,5 +1,5 @@
 /** @file chompi_main.cpp
- *  @brief CHOMPI SYNTH: a four-oscillator analog-style synth for the CHOMPI.
+ *  @brief POLY: a four-oscillator analog-style synth for the CHOMPI.
  *
  *  Two places code runs:
  *   1. AudioCallback(): the audio interrupt, every 24 samples (0.5 ms). Scans
@@ -220,8 +220,8 @@ int main(void)
 
     LedSetup();
 
-    // SD card. Everything we keep lives in /SYNTH; with no folder we stay in
-    // the root so a bare card still works.
+    // SD card. Everything we keep lives in /POLY, created if missing. Cards
+    // from before the rename have /SYNTH: it is renamed so patches carry over.
     System::Delay(100);
     SdmmcHandler::Config sd_cfg;
     sd_cfg.speed = SdmmcHandler::Speed::FAST;
@@ -231,10 +231,11 @@ int main(void)
     sd_ok = f_mount(&fsi.GetSDFileSystem(), fsi.GetSDPath(), 1) == FR_OK;
     if(sd_ok)
     {
-        if(f_chdir("/SYNTH") != FR_OK)
+        if(f_chdir("/POLY") != FR_OK)
         {
-            f_mkdir("/SYNTH");
-            f_chdir("/SYNTH");
+            if(f_rename("/SYNTH", "/POLY") != FR_OK)
+                f_mkdir("/POLY");
+            f_chdir("/POLY");
         }
         options.Init();
         midi_ch_in = options.midi_ch_in;

@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 #
-# Put CHOMPI SYNTH on a card.
+# Put POLY on a card.
 #
 #   ./install.sh /Volumes/YOUR_CARD [slot]        multi-firmware launcher card
 #   ./install.sh --standalone /Volumes/YOUR_CARD  no launcher, like a stock firmware
 #
-# Launcher: copies build/CHOMPI.bin to /FIRMWARE/NN_SYNTH.bin (slot defaults
+# Launcher: copies build/CHOMPI.bin to /FIRMWARE/NN_POLY.bin (slot defaults
 # to 04, so key 4 starts it).
 # Standalone: copies it to /CHOMPI.bin, the one file the stock bootloader
 # installs. Refuses if another .bin is in the root (it would compete).
-# Both copy the factory patches to /SYNTH. Patches you have already saved in
-# /SYNTH are never overwritten. Nothing else on the card is touched.
+# Both copy the factory patches to /POLY. Patches you have already saved in
+# /POLY are never overwritten. Nothing else on the card is touched.
 
 set -euo pipefail
 
@@ -36,10 +36,10 @@ if [[ ! -f "$BIN" ]]; then
 fi
 
 copy_patches() {
-    mkdir -p "$CARD/SYNTH"
-    rsync -a --ignore-existing --exclude='._*' --exclude='.DS_Store' "$HERE/card/SYNTH/" "$CARD/SYNTH/"
+    mkdir -p "$CARD/POLY"
+    rsync -a --ignore-existing --exclude='._*' --exclude='.DS_Store' "$HERE/card/POLY/" "$CARD/POLY/"
     sync
-    echo "patches:   /SYNTH ($(ls "$CARD/SYNTH" | grep -c '^P[0-9]*\.txt$') slots)"
+    echo "patches:   /POLY ($(ls "$CARD/POLY" | grep -c '^P[0-9]*\.txt$') slots)"
 }
 
 if (( STANDALONE )); then
@@ -77,13 +77,13 @@ shopt -s nullglob
 taken=("$CARD/FIRMWARE/${SLOT}_"*.bin)
 shopt -u nullglob
 for f in "${taken[@]}"; do
-    if [[ "$(basename "$f")" != "${SLOT}_SYNTH.bin" ]]; then
+    if [[ "$(basename "$f")" != "${SLOT}_POLY.bin" ]]; then
         echo "error: key $((10#$SLOT)) already has $(basename "$f")." >&2
         echo "  Pick a free slot: $(basename "$0") $CARD <slot>" >&2
         exit 1
     fi
 done
 
-cp "$BIN" "$CARD/FIRMWARE/${SLOT}_SYNTH.bin"
-echo "installed: /FIRMWARE/${SLOT}_SYNTH.bin (key $((10#$SLOT)))"
+cp "$BIN" "$CARD/FIRMWARE/${SLOT}_POLY.bin"
+echo "installed: /FIRMWARE/${SLOT}_POLY.bin (key $((10#$SLOT)))"
 copy_patches

@@ -2,8 +2,8 @@
  *  @brief Patches on the SD card as small text files, one "name value" per
  *  line, values 0..1:
  *
- *    /SYNTH/P01.txt .. P15.txt   the 15 slots (CHOMPI + white key)
- *    /SYNTH/current.txt          the sound as you left it, restored at boot
+ *    /POLY/P01.txt .. P15.txt   the 15 slots (CHOMPI + white key)
+ *    /POLY/current.txt          the sound as you left it, restored at boot
  *
  *  Unknown names are ignored and missing ones keep their current value, so
  *  files survive parameters being added or renamed. Writes go to a temp file

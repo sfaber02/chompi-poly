@@ -1,17 +1,19 @@
-# CHOMPI SYNTH
+# POLY
 
 An analog-style synth for the CHOMPI, after the Korg Mono/Poly. Each voice has four oscillators (saw, pulse with PWM, triangle) with hard sync and cross-mod. They feed a resonant 24 dB ladder filter, a filter envelope, an amp envelope and an LFO. After the voices come chorus, a ping-pong delay, reverb and saturation. There's also an arpeggiator. The toggle switch picks mono (with unison and glide) or 6-voice poly.
 
 It runs on its own like any stock CHOMPI firmware, or as one firmware on the [multi-firmware launcher](https://github.com/sfaber02/CHOMPI) card alongside TAPE, TEMPO and WAVE.
 
-> Status: beta. Download the latest from [Releases](https://github.com/sfaber02/chompi-synth/releases).
+> Status: beta. Download the latest from [Releases](https://github.com/sfaber02/chompi-poly/releases).
+>
+> Formerly "CHOMPI SYNTH". On first boot POLY renames an existing `/SYNTH` folder to `/POLY`, so saved patches carry over.
 
 ## Install
 
 ### On its own (like a stock firmware)
 
 1. Copy the firmware to the **root** of the card as `CHOMPI.bin`. It must be the only `.bin` in the root.
-2. Copy the `SYNTH` folder to the root.
+2. Copy the `POLY` folder to the root.
 3. Power on. The rainbow shows while the bootloader installs it, and from then on the CHOMPI boots straight into the synth.
 
 Or run `./install.sh --standalone /Volumes/YOUR_CARD`. To go back to another firmware, use a card with that firmware's `CHOMPI.bin`, the same as switching any stock firmware.
@@ -27,8 +29,8 @@ Either:
   ./install.sh /Volumes/YOUR_CARD 5      # or pick the key
   ```
 
-  This copies `/FIRMWARE/04_SYNTH.bin` and the factory patches into `/SYNTH`. It never overwrites patches you've saved.
-- or, with the launcher showing, send `code/src/build/CHOMPI.bin` to a free slot over USB MIDI. Then copy `card/SYNTH/` to the card yourself to get the factory patches.
+  This copies `/FIRMWARE/04_POLY.bin` and the factory patches into `/POLY`. It never overwrites patches you've saved.
+- or, with the launcher showing, send `code/src/build/CHOMPI.bin` to a free slot over USB MIDI. Then copy `card/POLY/` to the card yourself to get the factory patches.
 
 ## Playing it
 
@@ -51,7 +53,7 @@ It follows the stock CHOMPI idiom: **CHOMPI is shift.**
 | Toggle switch | Up = mono, down = poly |
 | CHOMPI + PLAY + LOOP at power-on | Shipping mode (battery off), as in the stock firmwares |
 
-When you turn a knob, the white keys briefly show its value as a bar. A centred bar means the knob is bipolar, and stepped settings light one key. Hold CHOMPI to see the page map on the black keys and your patch slots on the white keys: the patch you are on is blue, saved slots glow dim, empty slots are dark. Holding CHOMPI also turns the volume knob's LED into a CPU meter. The sound you leave is saved to `/SYNTH/current.txt` and comes back at power-on.
+When you turn a knob, the white keys briefly show its value as a bar. A centred bar means the knob is bipolar, and stepped settings light one key. Hold CHOMPI to see the page map on the black keys and your patch slots on the white keys: the patch you are on is blue, saved slots glow dim, empty slots are dark. Holding CHOMPI also turns the volume knob's LED into a CPU meter. The sound you leave is saved to `/POLY/current.txt` and comes back at power-on.
 
 ### Pages (black keys, left to right)
 
@@ -88,7 +90,7 @@ When you turn a knob, the white keys briefly show its value as a bar. A centred 
 ### MIDI
 
 - **Input:** DIN and USB.
-- **Channel:** set in `/SYNTH/options.json`.
+- **Channel:** set in `/POLY/options.json`.
 - **Notes:** with velocity.
 - **Other messages:** pitch bend (±2), mod wheel (CC 1, adds vibrato), sustain (CC 64), volume (CC 7), all notes off (CC 120/123).
 - **Parameter CCs:**
@@ -122,7 +124,7 @@ This produces `code/src/build/CHOMPI.bin`. The libraries in `code/libs` are CHOM
 ```
 make -C host
 host/render host/out                                   # test sounds
-host/render --factory card/SYNTH host/out/factory      # write factory patches + demos
+host/render --factory card/POLY host/out/factory      # write factory patches + demos
 python3 host/alias.py host/out/saw_sweep.wav           # aliasing check
 ```
 

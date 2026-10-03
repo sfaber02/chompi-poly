@@ -1,5 +1,5 @@
-CHOMPI SYNTH  beta 2
-==================
+POLY  beta
+==========
 
 A four-oscillator analog-style synth for the CHOMPI, inspired by the Korg Mono/Poly.
 Each voice has four oscillators (saw / pulse / triangle) with sync and cross-mod,
@@ -7,6 +7,8 @@ a resonant 24 dB filter, two envelopes, an LFO, chorus, delay, reverb and an
 arpeggiator. The toggle switch picks mono (up) or 6-voice poly (down).
 
 BETA: tested on one CHOMPI so far. Back up your card first.
+(Had the earlier "CHOMPI SYNTH" test build? POLY renames your /SYNTH
+folder to /POLY on first boot, so your patches carry over.)
 
 
 QUICK START (2 minutes)
@@ -56,9 +58,9 @@ INSTALL
 
 ON ITS OWN, like any stock CHOMPI firmware:
 
-1. Copy FIRMWARE/04_SYNTH.bin to the ROOT of the card and rename it
+1. Copy FIRMWARE/04_POLY.bin to the ROOT of the card and rename it
    CHOMPI.bin. It must be the only .bin in the root.
-2. Copy the SYNTH folder to the root of the card (the factory patches).
+2. Copy the POLY folder to the root of the card (the factory patches).
 3. Power on. The rainbow shows while it installs, then it boots straight
    into the synth every time. To switch back to TAPE or anything else, use
    a card with that firmware's CHOMPI.bin, as usual.
@@ -66,13 +68,13 @@ ON ITS OWN, like any stock CHOMPI firmware:
 ON THE MULTI-FIRMWARE LAUNCHER (v1.1,
 https://github.com/sfaber02/CHOMPI/releases):
 
-1. Copy FIRMWARE/04_SYNTH.bin into /FIRMWARE on the card. It goes on key 4;
+1. Copy FIRMWARE/04_POLY.bin into /FIRMWARE on the card. It goes on key 4;
    rename 04 to any free number 1-15 to put it on another key.
-2. Copy the SYNTH folder to the root of the card (the factory patches).
+2. Copy the POLY folder to the root of the card (the factory patches).
 3. Power on, press the key.
 
-Or send 04_SYNTH.bin over USB MIDI from the launcher
-(https://ugrossek.github.io/CHOMPI/), then copy the SYNTH folder over USB
+Or send 04_POLY.bin over USB MIDI from the launcher
+(https://ugrossek.github.io/CHOMPI/), then copy the POLY folder over USB
 storage (key 15).
 
 

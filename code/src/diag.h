@@ -1,6 +1,6 @@
 /** @file diag.h
  *  @brief Debug event log (build with DIAG=1). The audio interrupt records
- *  events into a RAM ring; the main loop appends them to /SYNTH/diag.txt
+ *  events into a RAM ring; the main loop appends them to /POLY/diag.txt
  *  every couple of seconds.
  */
 #pragma once
