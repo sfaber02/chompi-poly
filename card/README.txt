@@ -1,5 +1,5 @@
-CHOMPI SYNTH  beta 1  (build edca5c6)
-=====================================
+CHOMPI SYNTH  beta 2
+==================
 
 A four-oscillator analog-style synth for the CHOMPI, inspired by the Korg Mono/Poly.
 Each voice has four oscillators (saw / pulse / triangle) with sync and cross-mod,
