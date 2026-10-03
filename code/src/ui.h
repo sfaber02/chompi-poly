@@ -7,15 +7,17 @@
  *  Preset loads and saves are requested here and carried out by the main loop
  *  (they touch the SD card).
  *
- *  Controls:
+ *  Controls (the stock CHOMPI idiom: CHOMPI is shift):
  *    keys                    play
- *    knobs 1-5               the current page's five parameters
- *    knob 6                  master volume (click: all notes off)
+ *    knobs 1-4               the current page's four parameters
+ *    CHOMPI + knob 1-4       the page's second layer
+ *    CHOMPI + click knob     reset it to default
+ *    OSC page: click knob 1-4 to pick oscillator 1-4
+ *    transport knob          arp tempo
+ *    volume knob             master volume; CHOMPI + turn: saturation;
+ *                            click: all notes off
  *    CHOMPI + black key      choose page
  *    CHOMPI + white key      load preset; hold 1 s to save
- *    CHOMPI + knob           fine adjust
- *    OSC page: click knob 1-4 to pick oscillator 1-4
- *    other pages: click a knob to reset it
  *    PLAY                    arpeggiator on/off
  *    LOOP                    hold: latches the arp, or sustains when it's off
  *    CHOMPI + PLAY / LOOP    octave down / up
@@ -206,13 +208,21 @@ class Ui
         const float*   page_c  = kPageColour[page_];
         const bool     showing = now - shown_at_ < kShowValueMs && shown_param_ >= 0;
 
-        // Knob LEDs: page colour, brightness follows the value.
+        // Knob LEDs: page colour, brightness follows the value. Holding
+        // CHOMPI shows the second layer, and knobs without one go dark.
         for(int k = 0; k < kPageKnobs; k++)
         {
-            const float v = engine_->params[ParamAt(k)];
-            const float b = 0.08f + 0.92f * v;
+            const int   id = ParamAt(k, shift_);
+            const float b  = id < 0 ? 0.f : 0.08f + 0.92f * engine_->params[id];
             SetPthLedFloat(kKnobLed[k], page_c[0] * b, page_c[1] * b, page_c[2] * b);
-            SetPthLedFloat(kKnobLed2[k], page_c[0] * b, page_c[1] * b, page_c[2] * b);
+        }
+
+        // Transport knob: arp tempo, in the arp page's yellow.
+        {
+            const float* c = kPageColour[PAGE_ARP];
+            const float  b = 0.1f + 0.9f * engine_->params[ARP_TEMPO];
+            SetPthLedFloat(kKnobLed[4], c[0] * b, c[1] * b, c[2] * b);
+            SetPthLedFloat(kKnobLed2[4], c[0] * b, c[1] * b, c[2] * b);
         }
 
         // Volume knob: a level meter, or the CPU load while CHOMPI is held.
@@ -236,8 +246,16 @@ class Ui
         for(int i = 0; i < 25; i++)
             SetSmtLed(i, 0, 0, 0);
 
-        if(showing)
-            DrawValueBar(page_c);
+        if(now - page_flash_at_ < 350)
+        {
+            // New page: the whole keybed blinks its colour once.
+            const float b = 1.f - (now - page_flash_at_) / 350.f;
+            for(int s = 0; s < 15; s++)
+                SetSmtLedFloat(kKeyLed[static_cast<int>(kWhiteKeys[s])], page_c[0] * b,
+                               page_c[1] * b, page_c[2] * b);
+        }
+        else if(showing)
+            DrawValueBar(shown_colour_);
         else if(shift_)
             DrawShiftMenu(now);
         else
@@ -273,16 +291,23 @@ class Ui
     void SetCurrentSlot(int s) { current_slot_ = s; }
 
   private:
-    int ParamAt(int knob) const
+    /** Parameter under knob 0-3, on the shift layer if alt. -1 if none. */
+    int ParamAt(int knob, bool alt) const
     {
-        int id = kPageParams[page_][knob];
-        if(page_ == PAGE_OSC)
-            id += osc_ * kOscParams;
+        const uint8_t id = kPageParams[page_][knob + (alt ? kPageKnobs : 0)];
+        if(id == kNone)
+            return -1;
+        if(page_ == PAGE_OSC && IsOscParam(id))
+            return id + osc_ * kOscParams;
         return id;
     }
 
     void Changed(int param, uint32_t now)
     {
+        // The bar takes the colour of the page the parameter lives on.
+        shown_colour_ = kPageColour[page_];
+        if(param == ARP_TEMPO || param == ARP_MODE)
+            shown_colour_ = kPageColour[PAGE_ARP];
         shown_param_ = param;
         shown_at_    = now;
         dirty        = true;
@@ -304,8 +329,9 @@ class Ui
             {
                 if(static_cast<int>(kBlackKeys[p]) == sw)
                 {
-                    page_     = static_cast<Page>(p);
-                    shown_at_ = 0;
+                    page_          = static_cast<Page>(p);
+                    shown_at_      = 0;
+                    page_flash_at_ = now;
                     return;
                 }
             }
@@ -369,16 +395,24 @@ class Ui
                 sounding_note_[i] = -1;
             return;
         }
-        if(page_ == PAGE_OSC && knob < kNumOscs)
+        if(knob == 4)
+            return;
+        if(shift_)
         {
-            osc_      = knob;
-            shown_at_ = 0;
-            osc_shown_at_ = now;
+            const int id = ParamAt(knob, false);
+            if(id >= 0)
+            {
+                engine_->params[id] = kParams[id].def;
+                Changed(id, now);
+            }
             return;
         }
-        const int id        = ParamAt(knob);
-        engine_->params[id] = kParams[id].def;
-        Changed(id, now);
+        if(page_ == PAGE_OSC)
+        {
+            osc_          = knob;
+            shown_at_     = 0;
+            osc_shown_at_ = now;
+        }
     }
 
     void KnobTurn(int knob, int inc, uint32_t now)
@@ -386,7 +420,7 @@ class Ui
         const bool fast = now - last_turn_[knob] < 25;
         last_turn_[knob] = now;
 
-        if(knob == 5)
+        if(knob == 5 && !shift_)
         {
             engine_->volume = Clamp(engine_->volume + inc * 0.01f, 0.f, 1.f);
             dirty           = true;
@@ -394,18 +428,22 @@ class Ui
             return;
         }
 
-        const int id    = ParamAt(knob);
+        int id;
+        if(knob == 5)
+            id = SATURATE;
+        else if(knob == 4)
+            id = ARP_TEMPO;
+        else
+            id = ParamAt(knob, shift_);
+        if(id < 0)
+            return;
+
         float&    v     = engine_->params[id];
         const int steps = kParams[id].steps;
         if(steps)
             v = StepValue(StepIndex(v, steps) + (inc > 0 ? 1 : -1), steps);
         else
-        {
-            float step = shift_ ? 0.002f : 0.008f;
-            if(fast && !shift_)
-                step *= 3.f;
-            v += inc * step;
-        }
+            v += inc * (fast ? 0.024f : 0.008f);
         v = Clamp(v, 0.f, 1.f);
         Changed(id, now);
     }
@@ -503,6 +541,8 @@ class Ui
     int      shown_param_  = -1;
     uint32_t shown_at_     = 0;
     uint32_t osc_shown_at_ = 0;
+    uint32_t page_flash_at_ = 0;
+    const float* shown_colour_ = kPageColour[PAGE_FILTER];
     uint32_t arp_flash_    = 0;
 
     int      preset_key_   = -1;

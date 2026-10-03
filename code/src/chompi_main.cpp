@@ -29,7 +29,15 @@ Hardware       hw;
 synth::Engine  engine;
 Ui             ui;
 SdmmcHandler   sdmmc;
-FatFSInterface fsi;
+// The SD driver DMAs into the FATFS sector buffer inside this and then
+// invalidates the data cache in whole 32-byte lines. Owning its lines keeps
+// that from wiping variables the audio interrupt is writing (see presets.h).
+struct alignas(32) AlignedFs
+{
+    FatFSInterface fsi;
+};
+AlignedFs      fs_holder;
+FatFSInterface& fsi = fs_holder.fsi;
 OptionsManager options;
 PresetStore    presets;
 MidiUartHandler midi_uart;

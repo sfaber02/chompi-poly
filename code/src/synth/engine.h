@@ -40,6 +40,9 @@ class Engine
         delay_.Init(delay_mem, delay_frames, sample_rate);
         reverb_ = reverb;
         reverb_->Init(sample_rate);
+        // Its buffer lives in DTCM, which startup does not zero: without this
+        // the first seconds replay whatever the last firmware left there.
+        reverb_->Clear();
         reverb_->SetInputGain(0.25f);
         arp_.Reset();
         mono_count_ = 0;

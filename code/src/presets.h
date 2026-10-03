@@ -89,10 +89,14 @@ class PresetStore
 
   private:
     static constexpr size_t kBufSize = 2048;
-    // Keep the PresetStore global, never a local: the stack is in DTCM, which the SD card's
-    // DMA cannot reach.
-    FIL  fil_;
-    char buf_[kBufSize];
+    // The SD driver reads straight into buf_ by DMA and then invalidates the
+    // data cache over it in whole 32-byte lines. If buf_ shared a line with
+    // anything else (fil_ used to sit right before it), that other data would
+    // be thrown away: the cause of flaky preset loads. So buf_ owns its lines.
+    // And the PresetStore must be a global, never a local: the stack is in
+    // DTCM, which the SD card's DMA cannot reach.
+    alignas(32) char buf_[kBufSize];
+    alignas(32) FIL  fil_;
 };
 
 } // namespace chompi

@@ -200,10 +200,11 @@ class OptionsManager
     bool midi_cc_out;
     
     private:
-        FIL fptr_opt;
-
         static const size_t kOptFileSize = 4096;
         static const size_t kNumOptions = 9;
-        char opt_file[kOptFileSize];
+        // Cache-line aligned: the SD driver invalidates whole lines around
+        // DMA reads (see presets.h).
+        alignas(32) char opt_file[kOptFileSize];
+        alignas(32) FIL fptr_opt;
 };
 } // namespace chompi

@@ -186,9 +186,9 @@ inline float StepValue(int idx, int steps)
 }
 
 // ---------------------------------------------------------------------------
-// Knob pages. CHOMPI + a black key picks one; knobs 1-5 edit its five
-// parameters. Knob 6 is always master volume. The OSC page edits the selected
-// oscillator, chosen by clicking any knob on that page.
+// Knob pages. CHOMPI + a black key picks one. Knobs 1-4 edit its four main
+// parameters; CHOMPI + turn edits the second layer. On the OSC page, clicking
+// knob 1-4 picks which oscillator the knobs edit.
 
 enum Page : uint8_t
 {
@@ -205,21 +205,25 @@ enum Page : uint8_t
     NUM_PAGES
 };
 
-constexpr int kPageKnobs = 5;
+constexpr int     kPageKnobs = 4;
+constexpr uint8_t kNone      = 0xFF;
 
-// For PAGE_OSC these are oscillator 1's ids; add osc * kOscParams.
-constexpr uint8_t kPageParams[NUM_PAGES][kPageKnobs] = {
-    {OSC1_WAVE, OSC1_OCT, OSC1_LEVEL, OSC1_DETUNE, OSC1_PW},
-    {SYNC, XMOD, SWEEP, GLIDE, UNISON},
-    {CUTOFF, RESONANCE, FENV_AMT, KEYTRACK, DRIVE},
-    {FENV_A, FENV_D, FENV_S, FENV_R, VEL_FILTER},
-    {AENV_A, AENV_D, AENV_S, AENV_R, VEL_AMP},
-    {LFO_RATE, LFO_SHAPE, LFO_PITCH, LFO_PWM, LFO_CUTOFF},
-    {CHORUS, DLY_TIME, DLY_FDBK, DLY_MIX, SPREAD},
-    {REV_SIZE, REV_MIX, REV_TONE, SATURATE, NOISE},
-    {ARP_MODE, ARP_RANGE, ARP_TEMPO, ARP_GATE, TUNE},
-    {NOISE, SPREAD, SATURATE, TUNE, GLIDE},
+// [page][0..3] = knobs 1-4, [page][4..7] = CHOMPI + knobs 1-4.
+// For PAGE_OSC the per-oscillator ids are oscillator 1's; add osc * kOscParams.
+constexpr uint8_t kPageParams[NUM_PAGES][2 * kPageKnobs] = {
+    {OSC1_WAVE, OSC1_OCT, OSC1_LEVEL, OSC1_DETUNE, OSC1_PW, kNone, NOISE, kNone},
+    {SYNC, XMOD, SWEEP, GLIDE, kNone, kNone, kNone, UNISON},
+    {CUTOFF, RESONANCE, FENV_AMT, KEYTRACK, kNone, DRIVE, kNone, kNone},
+    {FENV_A, FENV_D, FENV_S, FENV_R, VEL_FILTER, kNone, kNone, kNone},
+    {AENV_A, AENV_D, AENV_S, AENV_R, VEL_AMP, kNone, kNone, kNone},
+    {LFO_RATE, LFO_SHAPE, LFO_PITCH, LFO_CUTOFF, kNone, kNone, LFO_PWM, kNone},
+    {CHORUS, DLY_TIME, DLY_FDBK, DLY_MIX, SPREAD, kNone, kNone, kNone},
+    {REV_SIZE, REV_MIX, REV_TONE, SATURATE, kNone, kNone, kNone, kNone},
+    {ARP_MODE, ARP_RANGE, ARP_TEMPO, ARP_GATE, kNone, kNone, kNone, kNone},
+    {GLIDE, UNISON, SPREAD, TUNE, NOISE, SATURATE, DRIVE, kNone},
 };
+
+inline bool IsOscParam(uint8_t id) { return id < OSC2_WAVE; }
 
 // Page colours (RGB 0..1): the knob LEDs and the page's black key show these.
 constexpr float kPageColour[NUM_PAGES][3] = {

@@ -4,7 +4,7 @@ An analog-style synth for the CHOMPI, after the Korg Mono/Poly. Each voice has f
 
 It runs as one firmware on the [multi-firmware launcher](https://github.com/sfaber02/CHOMPI) card, alongside TAPE, TEMPO and WAVE.
 
-> Status: in development. Not yet tested on hardware.
+> Status: in development. First hardware test 2026-10-03.
 
 ## Install
 
@@ -22,37 +22,41 @@ Using a launcher card, either:
 
 ## Playing it
 
+It follows the stock CHOMPI idiom: **CHOMPI is shift.**
+
 | Do | Does |
 |---|---|
 | Keys | Play (two octaves from C3) |
-| Knobs 1–5 | The five parameters of the current page |
-| Knob 6 | Master volume. Click for all notes off |
-| **CHOMPI + black key** | Choose a page (below) |
+| Knobs 1–4 | The current page's four main controls |
+| **CHOMPI + turn knob 1–4** | That knob's second control on this page (knobs without one go dark while CHOMPI is held) |
+| CHOMPI + click knob | Reset it to default |
+| Click knob 1–4 on the OSC page | Pick which oscillator the knobs edit |
+| Transport knob | Arp tempo |
+| Volume knob (right) | Master volume. CHOMPI + turn: saturation. Click: all notes off |
+| **CHOMPI + black key** | Choose a page (below). The keybed flashes the page colour |
 | **CHOMPI + white key** | Load patch 1–15. **Hold 1 s to save** to that slot |
-| CHOMPI + turn a knob | Fine adjust |
-| Click a knob | Reset it to default. On the OSC page, knobs 1–4 pick the oscillator instead |
 | PLAY | Arpeggiator on/off |
 | LOOP | Hold: latches the arp, or works as a sustain pedal when the arp is off |
 | CHOMPI + PLAY / LOOP | Octave down / up |
-| Toggle switch | Mono / poly |
+| Toggle switch | Up = mono, down = poly |
 | CHOMPI + PLAY + LOOP at power-on | Shipping mode (battery off), as in the stock firmwares |
 
-When you turn a knob, the white keys briefly show its value as a bar. A centred bar means the knob is bipolar, and stepped settings light one key. Hold CHOMPI to see the page map on the black keys and your patch slots on the white keys. The sound you leave is saved to `/SYNTH/current.txt` and comes back at power-on.
+When you turn a knob, the white keys briefly show its value as a bar. A centred bar means the knob is bipolar, and stepped settings light one key. Hold CHOMPI to see the page map on the black keys and your patch slots on the white keys. Holding CHOMPI also turns the volume knob's LED into a CPU meter. The sound you leave is saved to `/SYNTH/current.txt` and comes back at power-on.
 
 ### Pages (black keys, left to right)
 
-| Key | Page | Knob 1 | Knob 2 | Knob 3 | Knob 4 | Knob 5 |
-|---|---|---|---|---|---|---|
-| 1 | **OSC** (orange) | wave: saw/pulse/tri | octave: 16′ 8′ 4′ 2′ | level | detune | pulse width |
-| 2 | **MOD** (pink) | sync | cross-mod | sync sweep | glide | unison |
-| 3 | **FILTER** (blue) | cutoff | resonance | env amount ± | key track | drive |
-| 4 | **F-ENV** (indigo) | attack | decay | sustain | release | velocity → filter |
-| 5 | **A-ENV** (green) | attack | decay | sustain | release | velocity → amp |
-| 6 | **LFO** (purple) | rate | shape: tri/sine/saw/square/S&H | → pitch | → PWM | → cutoff |
-| 7 | **FX** (teal) | chorus | delay time | feedback | delay mix | stereo spread |
-| 8 | **REVERB** (warm) | size | mix | tone | saturation | noise |
-| 9 | **ARP** (yellow) | mode: off/up/down/up-down/random/as played | range 1–3 oct | tempo | gate | fine tune |
-| 10 | **PERFORM** (white) | noise | spread | saturation | fine tune | glide |
+| Key | Page | Knob 1 | Knob 2 | Knob 3 | Knob 4 |
+|---|---|---|---|---|---|
+| 1 | **OSC** (orange) | wave: saw/pulse/tri<br>*CHOMPI: pulse width* | octave: 16′ 8′ 4′ 2′ | level<br>*CHOMPI: noise* | detune |
+| 2 | **MOD** (pink) | sync | cross-mod | sync sweep | glide<br>*CHOMPI: unison* |
+| 3 | **FILTER** (blue) | cutoff | resonance<br>*CHOMPI: drive* | env amount ± | key track |
+| 4 | **F-ENV** (indigo) | attack<br>*CHOMPI: velocity → filter* | decay | sustain | release |
+| 5 | **A-ENV** (green) | attack<br>*CHOMPI: velocity → amp* | decay | sustain | release |
+| 6 | **LFO** (purple) | rate | shape: tri/sine/saw/square/S&H | → pitch<br>*CHOMPI: → PWM* | → cutoff |
+| 7 | **FX** (teal) | chorus<br>*CHOMPI: stereo spread* | delay time | feedback | delay mix |
+| 8 | **REVERB** (warm) | size | mix | tone | saturation |
+| 9 | **ARP** (yellow) | mode: off/up/down/up-down/random/as played | range 1–3 oct | tempo | gate |
+| 10 | **PERFORM** (white) | glide<br>*CHOMPI: noise* | unison<br>*CHOMPI: saturation* | spread<br>*CHOMPI: drive* | fine tune |
 
 - **Sync** locks oscillators 2–4 to oscillator 1.
 - **Sync sweep** lets the filter envelope push their pitch, which gives the classic sync scream. Turn up osc 2's level and lower osc 1's to hear it on its own.
