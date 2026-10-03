@@ -43,7 +43,8 @@ to everything else.
    Gate (ARP page, knob 4) all the way up = legato.
 
 8. Save: hold CHOMPI, then HOLD a white key for 1 second. It blinks red
-   when saved. Your current sound also comes back by itself at power-on.
+   when saved. While CHOMPI is held, the patch you're on is blue and
+   slots with a patch glow dim. Your current sound also comes back by itself at power-on.
 
 Lost? Hold CHOMPI and click a knob to reset it. Click the volume knob
 (far right) to stop all notes.

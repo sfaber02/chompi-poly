@@ -41,7 +41,7 @@ It follows the stock CHOMPI idiom: **CHOMPI is shift.**
 | Toggle switch | Up = mono, down = poly |
 | CHOMPI + PLAY + LOOP at power-on | Shipping mode (battery off), as in the stock firmwares |
 
-When you turn a knob, the white keys briefly show its value as a bar. A centred bar means the knob is bipolar, and stepped settings light one key. Hold CHOMPI to see the page map on the black keys and your patch slots on the white keys. Holding CHOMPI also turns the volume knob's LED into a CPU meter. The sound you leave is saved to `/SYNTH/current.txt` and comes back at power-on.
+When you turn a knob, the white keys briefly show its value as a bar. A centred bar means the knob is bipolar, and stepped settings light one key. Hold CHOMPI to see the page map on the black keys and your patch slots on the white keys: the patch you are on is blue, saved slots glow dim, empty slots are dark. Holding CHOMPI also turns the volume knob's LED into a CPU meter. The sound you leave is saved to `/SYNTH/current.txt` and comes back at power-on.
 
 ### Pages (black keys, left to right)
 

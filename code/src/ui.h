@@ -84,6 +84,7 @@ class Ui
     volatile int  save_slot  = -1;
     volatile bool dirty      = false; // something changed since the last autosave
     volatile uint32_t last_change = 0;
+    volatile uint16_t slots_used  = 0; // bit n = /SYNTH/P(n+1).txt exists; main keeps it
 
     void Init(Hardware* hw, Engine* engine)
     {
@@ -409,13 +410,15 @@ class Ui
 
         if(preset_key_ >= 0 && static_cast<int>(kWhiteKeys[preset_key_]) == sw)
         {
-            if(!preset_saved_)
+            const bool used = slots_used & (1u << preset_key_);
+            if(!preset_saved_ && used)
             {
                 load_slot = preset_key_;
                 Flash(preset_key_, false, now);
             }
-            current_slot_ = preset_key_;
-            preset_key_   = -1;
+            if(used || preset_saved_)
+                current_slot_ = preset_key_;
+            preset_key_ = -1;
         }
     }
 
@@ -533,15 +536,23 @@ class Ui
         }
     }
 
-    // CHOMPI held: white keys are preset slots, the current one bright.
+    // CHOMPI held: white keys are the patch slots. The one you're on is
+    // blue, slots with a patch glow dim warm white, empty ones stay dark. A
+    // key being held to save brightens towards the moment it saves.
     void DrawShiftMenu(uint32_t now)
     {
         for(int s = 0; s < 15; s++)
         {
-            float b = s == current_slot_ ? 1.f : 0.15f;
+            const int led = kKeyLed[static_cast<int>(kWhiteKeys[s])];
             if(s == preset_key_)
-                b = 0.5f + 0.5f * Clamp((now - preset_down_) / static_cast<float>(kSaveHoldMs), 0.f, 1.f);
-            SetSmtLedFloat(kKeyLed[static_cast<int>(kWhiteKeys[s])], b, b * 0.8f, b * 0.5f);
+            {
+                const float b = 0.3f + 0.7f * Clamp((now - preset_down_) / static_cast<float>(kSaveHoldMs), 0.f, 1.f);
+                SetSmtLedFloat(led, b, b * 0.8f, b * 0.5f);
+            }
+            else if(s == current_slot_)
+                SetSmtLedFloat(led, 0.f, 0.35f, 1.f);
+            else if(slots_used & (1u << s))
+                SetSmtLedFloat(led, 0.15f, 0.12f, 0.075f);
         }
     }
 

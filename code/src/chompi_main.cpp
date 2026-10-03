@@ -244,7 +244,19 @@ int main(void)
     }
 
     if(sd_ok)
+    {
         presets.Load("current.txt", engine.params, &engine.volume);
+        // Which slots hold a patch, so CHOMPI can show them.
+        char     name[16];
+        uint16_t used = 0;
+        for(int s = 0; s < 15; s++)
+        {
+            PresetStore::SlotName(s, name);
+            if(f_stat(name, nullptr) == FR_OK)
+                used |= 1u << s;
+        }
+        ui.slots_used = used;
+    }
     ui.Init(&hw, &engine);
 
     MidiUartHandler::Config uart_cfg;
@@ -348,6 +360,8 @@ int main(void)
                 ui.save_slot = -1;
                 PresetStore::SlotName(save, fname);
                 const bool ok = presets.Save(fname, engine.params);
+                if(ok)
+                    ui.slots_used = ui.slots_used | (1u << save);
 #if DIAG
                 DiagMainAdd(D_SAVE, save, ok);
 #else
