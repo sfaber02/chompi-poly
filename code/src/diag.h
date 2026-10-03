@@ -27,6 +27,8 @@ enum DiagCode : uint8_t
     D_SAVE,      // a=slot, b=ok
     D_STALL,     // a=main loop gap ms (capped 255), b=what
     D_EARLY,     // Poll returned early (boot ignore window)
+    D_LEVEL,     // a=voices peak %, b=delay input peak % (bends from 150)
+    D_LEVEL2,    // a=reverb input peak %, b=limiter gain % (100 = untouched)
 };
 
 struct DiagEvent

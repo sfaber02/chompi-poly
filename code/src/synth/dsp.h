@@ -30,6 +30,18 @@ inline float FastExp2(float x)
     return ldexpf(p, static_cast<int>(fl));
 }
 
+/** Clean below 0.75, then bends smoothly into 1.0: headroom for anything
+ *  that has to fit a fixed range (the delay's and reverb's 16-bit memory). */
+inline float SoftLimit(float x)
+{
+    const float a = fabsf(x);
+    if(a <= 0.75f)
+        return x;
+    const float over = (a - 0.75f) * 4.f;            // 0.. at the knee
+    const float y    = 0.75f + 0.25f * (over / (1.f + over));
+    return x < 0.f ? -y : y;
+}
+
 /** Pade tanh, clamped where it would turn back. */
 inline float FastTanh(float x)
 {

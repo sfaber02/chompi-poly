@@ -140,6 +140,21 @@ class Engine
         return false;
     }
 
+    /** Peak levels at each stage since the last call, for the DIAG clip
+     *  log. Called from the main loop; a reset racing the audio interrupt
+     *  only loses one block's peak. */
+    struct Levels
+    {
+        float voices, delay_in, reverb_in, pre_out, limit_gain;
+    };
+    Levels TakeLevels()
+    {
+        Levels l{lv_voices_, delay_.TakePeak(), lv_reverb_in_, lv_pre_out_, lv_limit_};
+        lv_voices_ = lv_reverb_in_ = lv_pre_out_ = 0.f;
+        lv_limit_                                = 1.f;
+        return l;
+    }
+
     /** Output level 0..1 for the volume knob's meter. */
     float Meter() const { return meter_; }
 
@@ -216,9 +231,17 @@ class Engine
             float l = out_l[i];
             float r = out_r[i];
 
+            lv_voices_ = fmaxf(lv_voices_, fmaxf(fabsf(l), fabsf(r)));
             chorus_.Process(&l, &r);
             delay_.Process(&l, &r);
-            reverb_->Process(&l, &r);
+
+            // The reverb also keeps its tank in 16 bits and clips hard. Run it
+            // at half level and bring it back up: 6 dB of headroom, same mix.
+            lv_reverb_in_ = fmaxf(lv_reverb_in_, fmaxf(fabsf(l), fabsf(r)));
+            float rl = l * 0.5f, rr = r * 0.5f;
+            reverb_->Process(&rl, &rr);
+            l = rl * 2.f;
+            r = rr * 2.f;
 
             // DC blocker
             dc_l_ += (l - dc_l_) * 0.0005f;
@@ -237,6 +260,8 @@ class Engine
             const float p = fabsf(l) > fabsf(r) ? fabsf(l) : fabsf(r);
             lim_env_      = p > lim_env_ ? p : lim_env_ * 0.9998f;
             const float g = lim_env_ > 0.95f ? 0.95f / lim_env_ : 1.f;
+            lv_limit_     = fminf(lv_limit_, g);
+            lv_pre_out_   = fmaxf(lv_pre_out_, p);
             out_l[i]      = l * g;
             out_r[i]      = r * g;
             if(p > peak)
@@ -312,7 +337,7 @@ class Engine
         Voice& voice  = voices_[pick];
         age_[pick]    = ++age_counter_;
         voice.detune_ = 0.f;
-        voice.pan     = PolyPan(pick);
+        voice.pan     = KeyPan(note);
         voice.note_id = note;
         voice.NoteOn(static_cast<float>(note), velocity, true, glide_on_);
     }
@@ -383,10 +408,13 @@ class Engine
         return 0.5f + pos * spread_;
     }
 
-    float PolyPan(int v) const
+    /** Poly voices are placed by pitch, low left to high right, like a
+     *  piano. One note around middle C sits in the centre (it used to
+     *  depend on which voice it landed on, which pushed single notes
+     *  left), and chords open out. */
+    float KeyPan(int note) const
     {
-        static constexpr float kPos[kMaxVoices] = {-1.f, 1.f, -.6f, .6f, -.2f, .2f};
-        return 0.5f + 0.5f * kPos[v] * spread_;
+        return Clamp(0.5f + spread_ * (note - 60) / 36.f, 0.05f, 0.95f);
     }
 
     // ------------------------------------------------- knobs -> units
@@ -520,6 +548,7 @@ class Engine
     float vol_      = 0.f;
     float lim_env_  = 0.f;
     float meter_    = 0.f;
+    float lv_voices_ = 0.f, lv_reverb_in_ = 0.f, lv_pre_out_ = 0.f, lv_limit_ = 1.f;
 };
 
 } // namespace synth

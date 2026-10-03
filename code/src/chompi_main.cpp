@@ -73,13 +73,14 @@ static void DiagMainAdd(uint8_t code, uint8_t a, uint8_t b)
 static void DiagFlush()
 {
     static const char* kNames[] = {"BOOT", "SHIFT", "KEYDOWN", "KEYUP", "PAGE", "TOGGLE",
-                                   "KNOB", "CLICK", "LOAD", "SAVE", "STALL", "EARLY"};
+                                   "KNOB", "CLICK", "LOAD", "SAVE", "STALL", "EARLY",
+                                   "LEVEL", "LEVEL2"};
     size_t len = 0;
     while(diag.tail != diag.head && len < sizeof(diag_file.buf) - 48)
     {
         const DiagEvent& e = diag.ev[diag.tail % DiagLog::kSize];
         len += snprintf(diag_file.buf + len, sizeof(diag_file.buf) - len, "%lu %s %u %u\n",
-                        static_cast<unsigned long>(e.ms), e.code < 12 ? kNames[e.code] : "?",
+                        static_cast<unsigned long>(e.ms), e.code < 14 ? kNames[e.code] : "?",
                         e.a, e.b);
         diag.tail++;
     }
@@ -93,8 +94,24 @@ static void DiagFlush()
         return;
     if(f_open(&diag_file.fil, "diag.txt", FA_OPEN_APPEND | FA_WRITE) == FR_OK)
     {
-        UINT bw;
-        f_write(&diag_file.fil, diag_file.buf, len, &bw);
+        // Whole sectors go to the card by DMA straight from our buffer, and
+        // the SD DMA garbles data that doesn't start on a 4-byte boundary.
+        // So top up the open sector first (that goes through FatFS's own
+        // buffer), then slide the rest down to the aligned start of ours.
+        size_t   off = 0;
+        UINT     bw;
+        const size_t fill = (512 - f_tell(&diag_file.fil) % 512) % 512;
+        if(fill)
+        {
+            const size_t n = fill < len ? fill : len;
+            f_write(&diag_file.fil, diag_file.buf, n, &bw);
+            off = n;
+        }
+        if(off < len)
+        {
+            memmove(diag_file.buf, diag_file.buf + off, len - off);
+            f_write(&diag_file.fil, diag_file.buf, len - off, &bw);
+        }
         f_close(&diag_file.fil);
     }
 }
@@ -270,6 +287,7 @@ int main(void)
 #if DIAG
     DiagMainAdd(D_BOOT, 0, 0);
     uint32_t last_flush = System::GetNow(), last_iter = System::GetNow();
+    uint32_t last_level = System::GetNow();
 #endif
 
     while(1)
@@ -283,6 +301,19 @@ int main(void)
         {
             DiagFlush();
             last_flush = System::GetNow();
+        }
+        // Once a second while something is sounding: the peak at each stage,
+        // to find where clipping happens.
+        if(now - last_level >= 1000)
+        {
+            last_level = now;
+            const auto lv  = engine.TakeLevels();
+            auto       pct = [](float v) { return static_cast<uint8_t>(v * 100.f > 255.f ? 255 : v * 100.f); };
+            if(lv.voices > 0.02f)
+            {
+                DiagMainAdd(D_LEVEL, pct(lv.voices), pct(lv.delay_in));
+                DiagMainAdd(D_LEVEL2, pct(lv.reverb_in), pct(lv.limit_gain));
+            }
         }
         last_iter = System::GetNow();
 #endif

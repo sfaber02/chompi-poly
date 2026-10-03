@@ -34,6 +34,15 @@ class Delay
     void SetFeedback(float fb) { feedback_ = Clamp(fb, 0.f, 0.95f); }
     void SetMix(float mix) { mix_ = Clamp(mix, 0.f, 1.f); }
 
+    /** Loudest signal written since the last call (1.0 = full scale at the
+     *  delay's input; it bends from 1.5 up). For the DIAG clip log. */
+    float TakePeak()
+    {
+        const float p = peak_in_;
+        peak_in_      = 0.f;
+        return p;
+    }
+
     inline void Process(float* l, float* r)
     {
         // Slew the read head: ~80 ms to settle, like a tape machine's motor.
@@ -49,7 +58,11 @@ class Delay
         const float wl = in + FastTanh(lp_l_ * feedback_);
         const float wr = FastTanh(lp_r_ * feedback_);
 
-        line_[write_] = {ToS16(wl), ToS16(wr)};
+        // Stored at half scale with a soft knee: 6 dB of headroom before
+        // anything bends, and it bends instead of chopping (16-bit memory
+        // clips hard otherwise, which is what made loud chords crunch).
+        line_[write_] = {ToS16(SoftLimit(wl * 0.5f)), ToS16(SoftLimit(wr * 0.5f))};
+        peak_in_      = fmaxf(peak_in_, fmaxf(fabsf(wl), fabsf(wr)));
         write_        = write_ + 1 < size_ ? write_ + 1 : 0;
 
         *l = *l + dl * mix_;
@@ -74,8 +87,8 @@ class Delay
         const Frame  a  = line_[i0];
         const Frame  b  = line_[i1];
         constexpr float k = 1.f / 32768.f;
-        *l = (a.l + (b.l - a.l) * f) * k;
-        *r = (a.r + (b.r - a.r) * f) * k;
+        *l = (a.l + (b.l - a.l) * f) * k * 2.f;
+        *r = (a.r + (b.r - a.r) * f) * k * 2.f;
     }
 
     Frame* line_       = nullptr;
@@ -88,6 +101,7 @@ class Delay
     float  mix_        = 0.f;
     float  lp_l_       = 0.f;
     float  lp_r_       = 0.f;
+    float  peak_in_    = 0.f;
 };
 
 } // namespace synth
