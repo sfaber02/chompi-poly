@@ -291,8 +291,11 @@ class Ui
         else
             DrawPlaying(page_c);
 
-        // Black keys always show the page map, brightest on the current page.
-        if(shift_ || showing)
+        // Black keys. Holding CHOMPI shows the whole page map (that's when
+        // you pick a page). While a knob's value is showing, only the
+        // current page's key lights, so the keybed reads as one thing.
+        const int tune_led = kKeyLed[static_cast<int>(kBlackKeys[PAGE_TUNE])];
+        if(shift_)
         {
             for(int p = 0; p < NUM_PAGES; p++)
             {
@@ -301,13 +304,27 @@ class Ui
                 SetSmtLedFloat(kKeyLed[static_cast<int>(kBlackKeys[p])], c[0] * b, c[1] * b, c[2] * b);
             }
         }
+        else if(showing)
+            SetSmtLedFloat(kKeyLed[static_cast<int>(kBlackKeys[page_])], page_c[0], page_c[1], page_c[2]);
 
         // Shifted? The TUNE page's black key glows amber whenever octave,
-        // transpose or fine tune is off centre, so you can't forget.
-        if(!shift_ && !showing && TuneShifted())
+        // transpose or fine tune is off centre, so you can't forget. Turning
+        // a TUNE knob it switches live between amber (shifted) and white
+        // (centred), so you can see the exact moment you reach zero.
+        if(!shift_)
         {
-            const float b = 0.35f + 0.15f * sinf(now * 0.004f);
-            SetSmtLedFloat(kKeyLed[static_cast<int>(kBlackKeys[PAGE_TUNE])], b, b * 0.55f, 0.f);
+            if(showing && page_ == PAGE_TUNE)
+            {
+                if(TuneShifted())
+                    SetSmtLedFloat(tune_led, 1.f, 0.55f, 0.f);
+                else
+                    SetSmtLedFloat(tune_led, 1.f, 1.f, 1.f);
+            }
+            else if(TuneShifted())
+            {
+                const float b = 0.35f + 0.15f * sinf(now * 0.004f);
+                SetSmtLedFloat(tune_led, b, b * 0.55f, 0.f);
+            }
         }
 
         // Preset load / save confirmation.
