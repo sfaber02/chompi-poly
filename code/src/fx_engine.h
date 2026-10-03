@@ -84,8 +84,16 @@ enum LFOIndex
     LFO_2
 };
 
+#ifdef FX_COUNT_CLIPS
+inline unsigned long fx_clip_count = 0; // host tests only
+#endif
+
 static inline int32_t Clip16(int32_t x)
 {
+#ifdef FX_COUNT_CLIPS
+    if(x < -32768 || x > 32767) // any format
+        fx_clip_count++;
+#endif
     if(x < -32768)
     {
         return -32768;

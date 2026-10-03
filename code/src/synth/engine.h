@@ -235,15 +235,14 @@ class Engine
             chorus_.Process(&l, &r);
             delay_.Process(&l, &r);
 
-            // The reverb also keeps its tank in 16 bits and clips hard. Run it
-            // at half level and bring it back up: 6 dB of headroom, same mix.
+            // Reverb amount is pinned at 1 so it returns only its wet
+            // signal; the mix knob's dry/wet law is applied here. Its tank
+            // is 12-bit with ~18 dB of headroom (see reverb.h).
             lv_reverb_in_ = fmaxf(lv_reverb_in_, fmaxf(fabsf(l), fabsf(r)));
-            // Amount is pinned at 1 so the reverb returns only its wet
-            // signal; the mix knob's dry/wet law is applied here.
-            float rl = l * 0.5f, rr = r * 0.5f;
+            float rl = l, rr = r;
             reverb_->Process(&rl, &rr);
-            l = l * rev_dry_ + rl * 2.f * rev_wet_;
-            r = r * rev_dry_ + rr * 2.f * rev_wet_;
+            l = l * rev_dry_ + rl * rev_wet_;
+            r = r * rev_dry_ + rr * rev_wet_;
 
             // DC blocker
             dc_l_ += (l - dc_l_) * 0.0005f;

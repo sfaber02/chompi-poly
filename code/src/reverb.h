@@ -166,7 +166,10 @@ class Reverb {
   }
   
  private:
-  typedef FxEngine<32768, FORMAT_16_BIT> E;
+  // 12-bit as in Rings: +/-8 full scale, so the tank has ~18 dB of headroom
+  // (the 16-bit format the CHOMPI port used clips at 1.0, audibly, on big
+  // chords with a long size; it is why the stock TAPE reverb clips too).
+  typedef FxEngine<32768, FORMAT_12_BIT> E;
   E engine_;
   
   float amount_;
