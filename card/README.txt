@@ -121,7 +121,8 @@ PAGES (black keys, left to right; CHOMPI + turn in brackets)
 ------------------------------------------------------------
 
   1  OSC      wave (pulse width) | octave | level (noise) | detune
-              click knob 1-4 to pick which oscillator you edit
+              >>> CLICK KNOB 1-4 TO PICK WHICH OF THE 4 OSCILLATORS YOU EDIT.
+              White keys 1-4 show which. Osc 3 and 4 start silent.
   2  MOD      sync | cross-mod | sync sweep | glide (unison)
   3  FILTER   cutoff | resonance (drive) | env amount | key tracking
   4  F-ENV    attack (velocity) | decay | sustain | release

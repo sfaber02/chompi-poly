@@ -53,7 +53,7 @@ When you turn a knob, the white keys briefly show its value as a bar. A centred 
 
 | Key | Page | Knob 1 | Knob 2 | Knob 3 | Knob 4 |
 |---|---|---|---|---|---|
-| 1 | **OSC** (orange) | wave: saw/pulse/tri<br>*CHOMPI: pulse width* | octave: 16′ 8′ 4′ 2′ | level<br>*CHOMPI: noise* | detune |
+| 1 | **OSC** (orange)<br>*click knob 1–4 = choose oscillator 1–4* | wave: saw/pulse/tri<br>*CHOMPI: pulse width* | octave: 16′ 8′ 4′ 2′ | level<br>*CHOMPI: noise* | detune |
 | 2 | **MOD** (pink) | sync | cross-mod | sync sweep | glide<br>*CHOMPI: unison* |
 | 3 | **FILTER** (blue) | cutoff | resonance<br>*CHOMPI: drive* | env amount ± | key track |
 | 4 | **F-ENV** (indigo) | attack<br>*CHOMPI: velocity → filter* | decay | sustain | release |
@@ -63,6 +63,9 @@ When you turn a knob, the white keys briefly show its value as a bar. A centred 
 | 8 | **LFO** (purple) | rate | shape: tri/sine/saw/square/S&H | → pitch<br>*CHOMPI: → PWM* | → cutoff |
 | 9 | **ARP** (yellow) | mode: off/up/down/up-down/random/as played | range 1–3 oct | tempo (also CHOMPI + volume while the arp runs) | gate (full = legato) |
 | 10 | **TUNE** (white) | octave −2…+2 | transpose ±12 semitones | fine tune ±50 cents (1-cent steps) | MIDI bend range 1–12 |
+
+> **🎛️ The OSC page edits one oscillator at a time.** Each voice has **four** oscillators. On the OSC page, **click knob 1, 2, 3 or 4 to choose which oscillator** the knobs are editing. White keys 1–4 show which one is selected. Every patch starts with oscillators 3 and 4 silent: select one and turn up its level (knob 3) to bring it in.
+
 
 **A patch is the sound; the TUNE page is the instrument.** Everything on pages 1–9 is saved in the patch, including each oscillator's octave and detune, and the arp. TUNE sets where the whole instrument sits: your octave, your key, and matching other gear. It isn't saved in patches, doesn't change when you load one, and is remembered at power-on. While you're shifted (octave, transpose or fine tune off centre), the TUNE black key glows amber. CHOMPI + click resets a TUNE knob to zero. Loading a patch also releases LOOP hold, so a new patch never starts with stuck notes.
 
