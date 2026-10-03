@@ -132,7 +132,7 @@ Patches 1-7: sync lead, brass, unison bass, PWM strings, X-mod bell,
 arp pluck, acid. Patch 15: INIT, one plain oscillator (nearly a sine) with
 everything else off. Start there to build your own.
 
-MIDI in (DIN and USB): notes with velocity, pitch bend, mod wheel (vibrato),
+MIDI in (DIN and USB, NOT YET TESTED on hardware): notes with velocity, pitch bend, mod wheel (vibrato),
 sustain pedal, and CCs for most parameters (cutoff 74, resonance 71, ...).
 
 

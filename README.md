@@ -88,7 +88,10 @@ When you turn a knob, the white keys briefly show its value as a bar. A centred 
 
 15. **init**: one plain oscillator, as close to a sine as it gets, with every effect and modulation off. Start here to build a sound from scratch.
 
-### MIDI
+### MIDI (untested)
+
+> MIDI is implemented but hasn't been tested on hardware yet.
+
 
 - **Input:** DIN and USB.
 - **Channel:** set in `/POLY/options.json`.
